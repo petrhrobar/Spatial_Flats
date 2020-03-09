@@ -1,5 +1,6 @@
 rm(list = ls())
 
+# TAKHLE NOVY KOMENTAR JSEM UDEA"L
 library(tidyverse)
 library(quantreg)
 library(spdep)
