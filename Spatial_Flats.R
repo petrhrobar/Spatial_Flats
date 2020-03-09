@@ -1,0 +1,274 @@
+rm(list = ls())
+
+library(tidyverse)
+library(quantreg)
+library(spdep)
+library(ggmap)
+
+df <- read.csv("C:/Users/petr7/OneDrive/ŠKOLA/PROSTOROVÉ BYTY/Dataset_Filtered_cleaned.csv", sep = ",")
+df %>% head
+df %>% colnames()
+df %>% select(gps.lon, gps.lat) %>% plot()
+
+df[ ,4:12] %>% stargazer::stargazer(type = "text", flip = T)
+
+df %>% colnames()
+options(scipen = 6)
+formula <- as.formula(log(price) ~ Rooms + Meters + I(Rooms^2) + Mezone + KK + panel + balcony_or_terrase + metro + novostavba)
+model <- lm(formula, data = df)
+model %>% summary()
+model_quant <- rq(formula, data = df)
+model_quant %>% summary(se = "boot")
+
+rep = 500
+bs.coeffs <- matrix(NA, nrow = rep, ncol = 10)
+for (b in 1:rep) {
+bs.model = lm(formula,
+  data=df,
+  subset=sample(2984, 2984, replace=TRUE)) # Zde!
+bs.coeffs[b, ] = bs.model$coef # Zapíšeme odhady z této replikace.
+}
+
+VCE.bootstrap = cov(bs.coeffs)
+
+lmtest::coeftest(model, VCE.bootstrap)
+
+# Quantile regression sentitivity plot =====
+
+rq(data=df, 
+   tau= 1:9/10,
+   formula = formula) %>%
+  broom::tidy(se.type = "boot") %>%
+  #filter(!grepl("Intercept", term)) %>%
+  #filter(!grepl("factor", term)) %>%
+  ggplot(aes(x=tau,y=estimate))+
+  geom_point(color="#27408b", size = 3)+ 
+  geom_line(color="#27408b", size = 1)+ 
+  geom_smooth(method=  "lm", colour = "red", se = T, fill = "red", alpha = 0.15) +  
+  facet_wrap(~term, scales="free", ncol=3) + 
+  geom_ribbon(aes(ymin=conf.low,ymax=conf.high),alpha=0.25, fill="#27408b") + 
+  #my_theme +
+  ggtitle("Quantile and OLS comparison")
+
+
+
+# Kmean Clusterring of Coordinates ======
+CORD = cbind(df$gps.lon, df$gps.lat)
+# How manz Unique Coordinates we have (some flats are very close)
+CORD[ ,1] %>% unique() %>% length()
+CORD[ ,1] <- CORD[ ,1] + runif(min = -10E-4, max = 10E-4, dim(CORD)[1])
+CORD[ ,2] <- CORD[ ,2] + runif(min = -10E-4, max = 10E-4, dim(CORD)[1])
+CORD[ ,1] %>% unique() %>% length()
+
+KME <- kmeans(CORD, 3)
+df$KMEAN = KME$cluster
+
+purrr::map(set_names(3:6), ~kmeans(CORD, .x)) %>% 
+  purrr::map(broom::augment, CORD) %>% 
+  imap(~mutate(.x, num_clust = .y)) %>% 
+  bind_rows() %>% 
+  ggplot(aes(X1, X2)) + 
+  geom_point(aes(color = .cluster)) + 
+  stat_ellipse(aes(x=X1, y=X2, fill=factor(.cluster)),
+               geom="polygon", level=0.95, alpha=0.2) + 
+  facet_wrap(~num_clust) + 
+  theme(legend.position = "none")
+
+
+model <- lm(formula, data = df)
+summary(model)
+
+quantile(model$residuals, probs = seq(0, 1, 0.10))
+
+d <- 
+  data.frame(model$fitted.values, df$price) %>% 
+  mutate(df.price = log(df.price),
+         pred_res = ((model.fitted.values - df.price)/df.price)*100,
+         pred_Rsqrt = cor(df.price, spatial.err$fitted.values)^2)%>% 
+  select(pred_res, pred_Rsqrt)
+
+
+
+
+
+
+
+d <- 
+  data.frame(model$fitted.values, df$price) %>% 
+  mutate(df.price = df.price,
+         model.fitted.values = exp(model.fitted.values),
+         pred_res = ((abs(model.fitted.values - df.price))/model.fitted.values))%>% 
+  select(pred_res)
+
+d %>% head()
+d$res_coded<-replace(d$res_coded,d$pred_res>=0,6)
+d$res_coded<-replace(d$res_coded,d$pred_res>=0.05,5)
+d$res_coded<-replace(d$res_coded,d$pred_res>=0.15,4)
+d$res_coded<-replace(d$res_coded,d$pred_res>=0.25,3)
+d$res_coded<-replace(d$res_coded,d$pred_res>=0.5,2)
+d$res_coded<-replace(d$res_coded,d$pred_res>=.75,1)
+d$res_coded<-replace(d$res_coded,d$pred_res>=1,0)
+
+d %>% sample_n(20)
+d %>% head
+
+d %>% 
+  ggplot(aes(res_coded)) + 
+  geom_bar() + 
+  geom_vline(xintercept = mean(d$res_coded), color = "red")  + 
+  ggtitle("Sloupcový graf kategorií reziduí")
+
+d$res_coded<-factor(d$res_coded)
+
+
+
+
+
+cns <- dnearneigh(CORD, d1=0, d2=0.9, longlat = T)
+summary(cns)
+plot(cns, CORD, col = "red")
+W <- nb2listw(cns, zero.policy = TRUE)
+plot(W, CORD)
+
+
+cns <- knearneigh(CORD, k=4, longlat=T) 
+scnsn <- knn2nb(cns, row.names = NULL, sym = T) 
+W <- nb2listw(scnsn)
+
+plot(cS_distance, CORD, col = "red")
+
+data_df <- data.frame(CORD)
+colnames(data_df) <- c("long", "lat")
+
+n = length(attributes(W$neighbours)$region.id)
+from <- rep(1:n,sapply(W$neighbours,length))
+to <- unlist(W$neighbours)[]
+weight <- numeric(length(to))
+weight[which(to != 0)] <- unlist(W$weights)
+DA = data.frame(from = from, to = to, weight = weight)
+DA <- DA[DA$to != 0,]
+DA = cbind(DA, data_df[DA$from,], data_df[DA$to,])
+
+colnames(DA)[4:7] = c("long","lat","long_to","lat_to")
+
+
+plot(CORD)
+plot(W, coordinates(CORD), add = T, col = "red")
+
+
+#map background ====
+
+bboxPrague <- c(14.22,49.94,14.71,50.18)
+ggMapPrague <- get_map(location = bboxPrague, source = "osm",maptype = "terrain", crop = TRUE, zoom = 12)
+
+ggmap(ggMapPrague) + 
+  geom_point(data = df, aes(x = CORD[ ,1], y = CORD[ ,2], color = factor(d$res_coded)),
+             size = 0.6, alpha = 0.70) + 
+
+  theme(legend.justification=c(0, 1), legend.position=c(0.05, 0.95),
+        legend.text=element_text(size=7), legend.title=element_text(size=7),
+        legend.key.size = unit(0.2, "cm"),
+        axis.text.x=element_blank(),
+        axis.ticks.x=element_blank(),
+        axis.text.y=element_blank(),
+        axis.ticks.y=element_blank(),
+        legend.box.background = element_rect(colour = "black", size = 0.05)
+        ) +
+  xlab(" ") + 
+  ylab(" ") + 
+  scale_color_brewer(palette="RdYlGn",name="Residua (%)",labels = c("[100;+inf)","[75;100)","[50;75)","[25;50)","[15;25)","[5;15)", "[0;5)")) + 
+  ggtitle("Shluková Analýza Reziduí") + 
+  guides(fill = guide_legend(override.aes = list(alpha = 1))) 
+
+
+setwd("C:/Users/petr7/Desktop")
+ggsave("net.pdf", height = 7, width = 7)
+
+
+
+# Testování Prostorové Autokorelace ==========
+moran.test(df$price, W)
+lm.morantest(model, W)
+
+moran.plot(log(df$price), W)
+lm.LMtests(model, W, test=c("LMlag", "LMerr", "RLMlag", "RLMerr")) %>% 
+  summary()
+
+spatial.err <- errorsarlm(formula, data=df, W)
+summary(spatial.err)
+
+spatial.lag <- lagsarlm(formula, data=df, W)
+summary(spatial.lag)
+
+data.frame(
+  OLS = c(model %>% AIC, cor(model$fitted.values, log(df$price))^2, nrow(df)),
+  Quantile = c(model_quant %>% AIC, cor(model_quant$fitted.values, log(df$price))^2, nrow(df)),
+  Spatial.Error = c(spatial.err %>% AIC, cor(spatial.err$fitted.values, log(df$price))^2, nrow(df)),
+  Spatial.Lag = c(spatial.lag %>% AIC, cor(spatial.lag$fitted.values, log(df$price))^2, nrow(df)),
+  row.names = c("AIC","R", "n")
+) %>% 
+  stargazer::stargazer(type = "text", summary = F, title = "Metriky modelù", table.layout ="c=")
+  #knitr::kable(booktabs = T, linesep = "F", digits = 3)
+  #kableExtra::kable_styling(bootstrap_options = "striped", full_width = F) %>% 
+
+
+OLS <- data.frame(
+  fitted = model$fitted.values,
+  residuals = model$residuals
+) %>% mutate(
+  actual = fitted + residuals, 
+  model = "OLS"
+) %>% 
+  select(actual, model, fitted, residuals)
+
+Quant_Req <- data.frame(
+  fitted = model_quant$fitted.values,
+  residuals = model_quant$residuals
+) %>% mutate(
+  actual = fitted + residuals, 
+  model = "Quantile"
+) %>% 
+  select(actual, model, fitted, residuals)
+
+Spatial_error <- data.frame(
+  fitted = spatial.err$fitted.values,
+  residuals = spatial.err$residuals
+) %>% mutate(
+  actual = fitted + residuals, 
+  model = "Spatial Error"
+) %>% 
+  select(actual, model, fitted, residuals)
+
+Spatial_Lag <- data.frame(
+  fitted = spatial.lag$fitted.values,
+  residuals = spatial.lag$residuals
+) %>% mutate(
+  actual = fitted + residuals, 
+  model = "Spatial Lag"
+) %>% 
+  select(actual, model, fitted, residuals)
+
+
+complete_diag = rbind(OLS, Quant_Req, Spatial_error, Spatial_Lag)
+complete_diag <- complete_diag %>% arrange(residuals) %>% tail(11920)
+
+
+
+ggplot(complete_diag, aes(x = actual, y = fitted)) + 
+  geom_point(aes(colour = residuals), size = 2, alpha = 1) + 
+  #scale_fill_brewer() +
+  facet_wrap(model~.) +
+  geom_abline(intercept = 0, slope = 1, size = 1, colour = "#FC4E07") + 
+  my_theme2 + 
+  ggtitle("Porovnání Predikèní schopnosti modelù") + 
+  theme(legend.justification=c(0, 1), legend.position=c(0.05, 0.95),
+        legend.text=element_text(size=7), legend.title=element_text(size=7),
+        legend.key.size = unit(0.6, "cm"),
+        legend.box.background = element_rect(colour = "black", size = 0.75)
+  ) 
+
+
+
+ggsave("C:/Users/petr7/Desktop/models.pdf", height = 6, width = 8.5)
+
+
