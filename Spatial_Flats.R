@@ -1,15 +1,13 @@
 rm(list = ls())
 
-# TAKHLE NOVY KOMENTAR JSEM UDEA"L
 library(tidyverse)
 library(quantreg)
 library(spdep)
 library(ggmap)
 
 df <- read.csv("C:/Users/petr7/OneDrive/ŠKOLA/PROSTOROVÉ BYTY/Dataset_Filtered_cleaned.csv", sep = ",")
+
 df %>% head
-df %>% colnames()
-df %>% select(gps.lon, gps.lat) %>% plot()
 
 df[ ,4:12] %>% stargazer::stargazer(type = "text", flip = T)
 
