@@ -1,28 +1,26 @@
 rm(list = ls())
 
-# TAKHLE NOVY KOMENTAR JSEM UDEA"L
 library(tidyverse)
 library(quantreg)
 library(spdep)
 library(ggmap)
 
 df <- read.csv("C:/Users/petr7/OneDrive/ŠKOLA/PROSTOROVÉ BYTY/Dataset_Filtered_cleaned.csv", sep = ",")
+
 df %>% head
-df %>% colnames()
-df %>% select(gps.lon, gps.lat) %>% plot()
 
 df[ ,4:12] %>% stargazer::stargazer(type = "text", flip = T)
 
 df %>% colnames()
 options(scipen = 6)
-formula <- as.formula(log(price) ~ Rooms + Meters + I(Rooms^2) + Mezone + KK + panel + balcony_or_terrase + metro + novostavba)
+formula <- as.formula(log(price) ~ Rooms + Meters + I(Rooms^2) + Mezone + KK + panel + balcony_or_terrase + novostavba)
 model <- lm(formula, data = df)
 model %>% summary()
 model_quant <- rq(formula, data = df)
 model_quant %>% summary(se = "boot")
 
 rep = 500
-bs.coeffs <- matrix(NA, nrow = rep, ncol = 10)
+bs.coeffs <- matrix(NA, nrow = rep, ncol = 9)
 for (b in 1:rep) {
 bs.model = lm(formula,
   data=df,
@@ -189,6 +187,7 @@ ggsave("net.pdf", height = 7, width = 7)
 
 # Testování Prostorové Autokorelace ==========
 moran.test(df$price, W)
+
 lm.morantest(model, W)
 
 moran.plot(log(df$price), W)
@@ -201,12 +200,13 @@ summary(spatial.err)
 spatial.lag <- lagsarlm(formula, data=df, W)
 summary(spatial.lag)
 
+
 data.frame(
-  OLS = c(model %>% AIC, cor(model$fitted.values, log(df$price))^2, nrow(df)),
-  Quantile = c(model_quant %>% AIC, cor(model_quant$fitted.values, log(df$price))^2, nrow(df)),
-  Spatial.Error = c(spatial.err %>% AIC, cor(spatial.err$fitted.values, log(df$price))^2, nrow(df)),
-  Spatial.Lag = c(spatial.lag %>% AIC, cor(spatial.lag$fitted.values, log(df$price))^2, nrow(df)),
-  row.names = c("AIC","R", "n")
+  OLS = c(model %>% AIC, model %>% logLik(), cor(model$fitted.values, log(df$price))^2, nrow(df)),
+  Quantile = c(model_quant %>% AIC, model_quant %>% logLik(), cor(model_quant$fitted.values, log(df$price))^2, nrow(df)),
+  Spatial.Error = c(spatial.err %>% AIC, spatial.err %>% logLik(), cor(spatial.err$fitted.values, log(df$price))^2, nrow(df)),
+  Spatial.Lag = c(spatial.lag %>% AIC, spatial.lag %>% logLik(), cor(spatial.lag$fitted.values, log(df$price))^2, nrow(df)),
+  row.names = c("AIC", "Log-like.", "R", "n")
 ) %>% 
   stargazer::stargazer(type = "text", summary = F, title = "Metriky modelù", table.layout ="c=")
   #knitr::kable(booktabs = T, linesep = "F", digits = 3)
