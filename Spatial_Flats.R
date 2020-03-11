@@ -1,5 +1,5 @@
 rm(list = ls())
-Smazeme cele prostředí...
+#Smazeme cele prostředí...
 
 -------------------------------------
 ######### Packages loading #########
