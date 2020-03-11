@@ -1,4 +1,5 @@
 rm(list = ls())
+set.seed(010)
 #Smazeme cele prostředí...
 
 -------------------------------------
