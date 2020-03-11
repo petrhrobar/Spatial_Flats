@@ -1,5 +1,5 @@
 rm(list = ls())
-
+Smazeme cele prostÅ™edÃ­...
 
 -------------------------------------
 ######### Packages loading #########
@@ -161,7 +161,7 @@ d %>%
   ggplot(aes(res_coded)) + 
   geom_bar() + 
   geom_vline(xintercept = mean(d$res_coded), color = "red")  + 
-  ggtitle("Sloupcovı graf kategorií reziduí")
+  ggtitle("SloupcovÃ½ graf kategoriÃ­ reziduÃ­")
 
 d$res_coded<-factor(d$res_coded)
 
@@ -239,7 +239,7 @@ ggMapPrague <- get_map(location = bboxPrague, source = "osm",maptype = "terrain"
   xlab(" ") + 
   ylab(" ") + 
   scale_color_brewer(palette="RdYlGn",name="Residua (%)",labels = c("[100;+inf)","[75;100)","[50;75)","[25;50)","[15;25)","[5;15)", "[0;5)")) + 
-  ggtitle("Shluková Analıza Reziduí") + 
+  ggtitle("ShlukovÃ¡ AnalÃ½za ReziduÃ­") + 
   guides(fill = guide_legend(override.aes = list(alpha = 1))) 
 
 
@@ -339,7 +339,7 @@ ggplot(complete_diag, aes(x = actual, y = fitted)) +
   facet_wrap(model~.) +
   geom_abline(intercept = 0, slope = 1, size = 1, colour = "#FC4E07") + 
 #  my_theme2 + 
-  ggtitle("Porovnání Predikèní schopnosti modelù") + 
+  ggtitle("PorovnÃ¡nÃ­ PredikÃ¨nÃ­ schopnosti modelÃ¹") + 
   theme(legend.justification=c(0, 1), legend.position=c(0.05, 0.95),
         legend.text=element_text(size=7), legend.title=element_text(size=7),
         legend.key.size = unit(0.6, "cm"),
