@@ -1,38 +1,79 @@
 rm(list = ls())
 
+
+-------------------------------------
+######### Packages loading #########
+-------------------------------------
+
 library(tidyverse)
 library(quantreg)
 library(spdep)
 library(ggmap)
+library(stargazer)
+library(kableExtra)
 
-df <- read.csv("C:/Users/petr7/OneDrive/ŠKOLA/PROSTOROVÉ BYTY/Dataset_Filtered_cleaned.csv", sep = ",")
+-------------------------------------
+####### Always set directory ########
+-------------------------------------
 
+
+
+-------------------------------------
+######### Datasets loading  #########
+-------------------------------------
+
+df <- read.csv("Dataset_Filtered_cleaned.csv", sep = ",")
 df %>% head
+df %>% colnames()
+df %>% select(gps.lon, gps.lat) %>% plot()
+
+-------------------------------------
+######### Latex summary table #######
+-------------------------------------
 
 df[ ,4:12] %>% stargazer::stargazer(type = "text", flip = T)
 
-df %>% colnames()
-options(scipen = 6)
+
+
+-------------------------------------
+######### General Formula #########
+-------------------------------------
 formula <- as.formula(log(price) ~ Rooms + Meters + I(Rooms^2) + Mezone + KK + panel + balcony_or_terrase + novostavba)
+
+
+-------------------------------------
+######## OLS and Quant model ########
+-------------------------------------
 model <- lm(formula, data = df)
-model %>% summary()
 model_quant <- rq(formula, data = df)
+
+
+model %>% summary()
 model_quant %>% summary(se = "boot")
 
+
+
+-------------------------------------
+######## Bootstrap std. OLS #########
+-------------------------------------
 rep = 500
 bs.coeffs <- matrix(NA, nrow = rep, ncol = 9)
 for (b in 1:rep) {
 bs.model = lm(formula,
   data=df,
-  subset=sample(2984, 2984, replace=TRUE)) # Zde!
-bs.coeffs[b, ] = bs.model$coef # Zapíšeme odhady z této replikace.
+  subset=sample(nrow(df), size = nrow(df), replace=TRUE))
+bs.coeffs[b, ] = bs.model$coef
 }
 
 VCE.bootstrap = cov(bs.coeffs)
 
 lmtest::coeftest(model, VCE.bootstrap)
 
-# Quantile regression sentitivity plot =====
+
+-------------------------------------
+###### Quantile sensitivity #########
+-------------------------------------
+
 
 rq(data=df, 
    tau= 1:9/10,
@@ -51,13 +92,21 @@ rq(data=df,
 
 
 
-# Kmean Clusterring of Coordinates ======
+-------------------------------------
+##### Adding small rand. number #####
+-------------------------------------
+  
 CORD = cbind(df$gps.lon, df$gps.lat)
-# How manz Unique Coordinates we have (some flats are very close)
 CORD[ ,1] %>% unique() %>% length()
 CORD[ ,1] <- CORD[ ,1] + runif(min = -10E-4, max = 10E-4, dim(CORD)[1])
 CORD[ ,2] <- CORD[ ,2] + runif(min = -10E-4, max = 10E-4, dim(CORD)[1])
 CORD[ ,1] %>% unique() %>% length()
+
+
+
+-------------------------------------
+####### Kmean of Coordinates ########
+-------------------------------------
 
 KME <- kmeans(CORD, 3)
 df$KMEAN = KME$cluster
@@ -74,29 +123,26 @@ purrr::map(set_names(3:6), ~kmeans(CORD, .x)) %>%
   theme(legend.position = "none")
 
 
-model <- lm(formula, data = df)
-summary(model)
 
-quantile(model$residuals, probs = seq(0, 1, 0.10))
-
-d <- 
-  data.frame(model$fitted.values, df$price) %>% 
-  mutate(df.price = log(df.price),
-         pred_res = ((model.fitted.values - df.price)/df.price)*100,
-         pred_Rsqrt = cor(df.price, spatial.err$fitted.values)^2)%>% 
-  select(pred_res, pred_Rsqrt)
+model_kmeans <- lm(log(price) ~ Rooms + Meters + I(Rooms^2) + Mezone + KK + panel + balcony_or_terrase + novostavba + factor(KMEAN), df)
+model_kmeans %>% summary()
 
 
+stargazer::stargazer(model, 
+                     model_kmeans, 
+                     model_quant, type = "text")
 
 
+-------------------------------------
+### Clustering residuals from OLS ###
+-------------------------------------
 
 
-
-d <- 
+d = 
   data.frame(model$fitted.values, df$price) %>% 
   mutate(df.price = df.price,
          model.fitted.values = exp(model.fitted.values),
-         pred_res = ((abs(model.fitted.values - df.price))/model.fitted.values))%>% 
+         pred_res = ((abs(model.fitted.values - df.price))/model.fitted.values)) %>% 
   select(pred_res)
 
 d %>% head()
@@ -108,7 +154,7 @@ d$res_coded<-replace(d$res_coded,d$pred_res>=0.5,2)
 d$res_coded<-replace(d$res_coded,d$pred_res>=.75,1)
 d$res_coded<-replace(d$res_coded,d$pred_res>=1,0)
 
-d %>% sample_n(20)
+d %>% sample_n(12)
 d %>% head
 
 d %>% 
@@ -122,19 +168,29 @@ d$res_coded<-factor(d$res_coded)
 
 
 
-
+-------------------------------------
+##### Spatial Models - W_matrix #####
+# Distance - matrix
+-------------------------------------
 cns <- dnearneigh(CORD, d1=0, d2=0.9, longlat = T)
 summary(cns)
 plot(cns, CORD, col = "red")
 W <- nb2listw(cns, zero.policy = TRUE)
 plot(W, CORD)
 
-
+-------------------------------------
+  ##### Spatial Models - W_matrix #####
+# NN - matrix
+-------------------------------------
 cns <- knearneigh(CORD, k=4, longlat=T) 
 scnsn <- knn2nb(cns, row.names = NULL, sym = T) 
 W <- nb2listw(scnsn)
 
-plot(cS_distance, CORD, col = "red")
+
+-------------------------------------
+###### DataFrame from W_matrix ######
+# For ggplot 
+-------------------------------------
 
 data_df <- data.frame(CORD)
 colnames(data_df) <- c("long", "lat")
@@ -155,14 +211,21 @@ plot(CORD)
 plot(W, coordinates(CORD), add = T, col = "red")
 
 
-#map background ====
+-------------------------------------
+########## Map of Prague  ###########
+-------------------------------------
 
 bboxPrague <- c(14.22,49.94,14.71,50.18)
 ggMapPrague <- get_map(location = bboxPrague, source = "osm",maptype = "terrain", crop = TRUE, zoom = 12)
 
-ggmap(ggMapPrague) + 
-  geom_point(data = df, aes(x = CORD[ ,1], y = CORD[ ,2], color = factor(d$res_coded)),
-             size = 0.6, alpha = 0.70) + 
+ ggmap(ggMapPrague) + 
+   geom_point(data = df, aes(x = CORD[ ,1], y = CORD[ ,2], color = factor(d$res_coded)),
+              size = 0.6, alpha = 0.70) +
+  
+  # geom_point(data = df, aes(x = CORD[ ,1], y = CORD[ ,2]),
+  #            size = 0.6, alpha = 0.70) +
+  # 
+  #  geom_segment(data = DA, aes(xend = long_to, yend = lat_to, x = DA$long, y = DA$lat), size=0.5, color = "red") +
 
   theme(legend.justification=c(0, 1), legend.position=c(0.05, 0.95),
         legend.text=element_text(size=7), legend.title=element_text(size=7),
@@ -185,21 +248,32 @@ ggsave("net.pdf", height = 7, width = 7)
 
 
 
-# Testování Prostorové Autokorelace ==========
+-------------------------------------
+##### Spatial Autocorr. testing #####
+-------------------------------------
 moran.test(df$price, W)
-
-lm.morantest(model, W)
+lm.morantest(model, W)[1]
 
 moran.plot(log(df$price), W)
 lm.LMtests(model, W, test=c("LMlag", "LMerr", "RLMlag", "RLMerr")) %>% 
   summary()
 
+
+-------------------------------------
+######## Lag and Error models #######
+-------------------------------------
 spatial.err <- errorsarlm(formula, data=df, W)
 summary(spatial.err)
 
 spatial.lag <- lagsarlm(formula, data=df, W)
 summary(spatial.lag)
 
+save.image(file="Spatial.err.RData")
+save.image(file="Spatial.lag.RData")
+-------------------------------------
+####### All in-sample metrics #######
+### latex table
+-------------------------------------
 
 data.frame(
   OLS = c(model %>% AIC, model %>% logLik(), cor(model$fitted.values, log(df$price))^2, nrow(df)),
@@ -207,11 +281,15 @@ data.frame(
   Spatial.Error = c(spatial.err %>% AIC, spatial.err %>% logLik(), cor(spatial.err$fitted.values, log(df$price))^2, nrow(df)),
   Spatial.Lag = c(spatial.lag %>% AIC, spatial.lag %>% logLik(), cor(spatial.lag$fitted.values, log(df$price))^2, nrow(df)),
   row.names = c("AIC", "Log-like.", "R", "n")
-) %>% 
-  stargazer::stargazer(type = "text", summary = F, title = "Metriky modelù", table.layout ="c=")
-  #knitr::kable(booktabs = T, linesep = "F", digits = 3)
-  #kableExtra::kable_styling(bootstrap_options = "striped", full_width = F) %>% 
+) %>%
+  #stargazer(type = "text", summary = F, title = "Metriky modelu")
+  kable() %>%
+  kable_styling(bootstrap_options = "striped", full_width = F)
 
+-------------------------------------
+#### Data Frames for all models #####
+# OLS, Quant, Error, Lag
+-------------------------------------
 
 OLS <- data.frame(
   fitted = model$fitted.values,
@@ -260,7 +338,7 @@ ggplot(complete_diag, aes(x = actual, y = fitted)) +
   #scale_fill_brewer() +
   facet_wrap(model~.) +
   geom_abline(intercept = 0, slope = 1, size = 1, colour = "#FC4E07") + 
-  my_theme2 + 
+#  my_theme2 + 
   ggtitle("Porovnání Predikèní schopnosti modelù") + 
   theme(legend.justification=c(0, 1), legend.position=c(0.05, 0.95),
         legend.text=element_text(size=7), legend.title=element_text(size=7),
@@ -269,7 +347,15 @@ ggplot(complete_diag, aes(x = actual, y = fitted)) +
   ) 
 
 
-
-ggsave("C:/Users/petr7/Desktop/models.pdf", height = 6, width = 8.5)
-
-
+-------------------------------------
+####### Latex of all models #########
+-------------------------------------
+capture.output(
+  summary(model),
+  summary(model_quant),
+  summary(model_kmeans),
+  summary(spatial.lag),
+  summary(spatial.err),
+  
+file = "A.txt"
+)
