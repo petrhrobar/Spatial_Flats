@@ -1,9 +1,11 @@
 rm(list = ls())
+set.seed(010)
+#Smazeme cele prost≈ôed√≠...
 
+#-------------------------------------#
+####### Packages Loading ########
+#-------------------------------------#
 
--------------------------------------
-######### Packages loading #########
--------------------------------------
 
 library(tidyverse)
 library(quantreg)
@@ -12,38 +14,38 @@ library(ggmap)
 library(stargazer)
 library(kableExtra)
 
--------------------------------------
+#-------------------------------------#
 ####### Always set directory ########
--------------------------------------
+#-------------------------------------#
 
 
 
--------------------------------------
+#-------------------------------------#
 ######### Datasets loading  #########
--------------------------------------
+#-------------------------------------#
 
 df <- read.csv("Dataset_Filtered_cleaned.csv", sep = ",")
 df %>% head
 df %>% colnames()
 df %>% select(gps.lon, gps.lat) %>% plot()
 
--------------------------------------
+#-------------------------------------#
 ######### Latex summary table #######
--------------------------------------
+#-------------------------------------#
 
 df[ ,4:12] %>% stargazer::stargazer(type = "text", flip = T)
 
 
 
--------------------------------------
+#-------------------------------------#
 ######### General Formula #########
--------------------------------------
+#-------------------------------------#
 formula <- as.formula(log(price) ~ Rooms + Meters + I(Rooms^2) + Mezone + KK + panel + balcony_or_terrase + novostavba)
 
 
--------------------------------------
+#-------------------------------------#
 ######## OLS and Quant model ########
--------------------------------------
+#-------------------------------------#
 model <- lm(formula, data = df)
 model_quant <- rq(formula, data = df)
 
@@ -53,9 +55,9 @@ model_quant %>% summary(se = "boot")
 
 
 
--------------------------------------
+#-------------------------------------#
 ######## Bootstrap std. OLS #########
--------------------------------------
+#-------------------------------------#
 rep = 500
 bs.coeffs <- matrix(NA, nrow = rep, ncol = 9)
 for (b in 1:rep) {
@@ -70,9 +72,9 @@ VCE.bootstrap = cov(bs.coeffs)
 lmtest::coeftest(model, VCE.bootstrap)
 
 
--------------------------------------
+#-------------------------------------#
 ###### Quantile sensitivity #########
--------------------------------------
+#-------------------------------------#
 
 
 rq(data=df, 
@@ -92,9 +94,9 @@ rq(data=df,
 
 
 
--------------------------------------
+#-------------------------------------#
 ##### Adding small rand. number #####
--------------------------------------
+#-------------------------------------#
   
 CORD = cbind(df$gps.lon, df$gps.lat)
 CORD[ ,1] %>% unique() %>% length()
@@ -104,9 +106,9 @@ CORD[ ,1] %>% unique() %>% length()
 
 
 
--------------------------------------
+#-------------------------------------#
 ####### Kmean of Coordinates ########
--------------------------------------
+#-------------------------------------#
 
 KME <- kmeans(CORD, 3)
 df$KMEAN = KME$cluster
@@ -133,9 +135,9 @@ stargazer::stargazer(model,
                      model_quant, type = "text")
 
 
--------------------------------------
+#-------------------------------------#
 ### Clustering residuals from OLS ###
--------------------------------------
+#-------------------------------------#
 
 
 d = 
@@ -161,36 +163,36 @@ d %>%
   ggplot(aes(res_coded)) + 
   geom_bar() + 
   geom_vline(xintercept = mean(d$res_coded), color = "red")  + 
-  ggtitle("Sloupcov˝ graf kategoriÌ reziduÌ")
+  ggtitle("Sloupcov√Ω graf kategori√≠ rezidu√≠")
 
 d$res_coded<-factor(d$res_coded)
 
 
 
 
--------------------------------------
+#-------------------------------------#
 ##### Spatial Models - W_matrix #####
 # Distance - matrix
--------------------------------------
+#-------------------------------------#
 cns <- dnearneigh(CORD, d1=0, d2=0.9, longlat = T)
 summary(cns)
 plot(cns, CORD, col = "red")
 W <- nb2listw(cns, zero.policy = TRUE)
 plot(W, CORD)
 
--------------------------------------
+#-------------------------------------#
   ##### Spatial Models - W_matrix #####
 # NN - matrix
--------------------------------------
+#-------------------------------------#
 cns <- knearneigh(CORD, k=4, longlat=T) 
 scnsn <- knn2nb(cns, row.names = NULL, sym = T) 
 W <- nb2listw(scnsn)
 
 
--------------------------------------
+#-------------------------------------#
 ###### DataFrame from W_matrix ######
 # For ggplot 
--------------------------------------
+#-------------------------------------#
 
 data_df <- data.frame(CORD)
 colnames(data_df) <- c("long", "lat")
@@ -211,9 +213,9 @@ plot(CORD)
 plot(W, coordinates(CORD), add = T, col = "red")
 
 
--------------------------------------
+#-------------------------------------#
 ########## Map of Prague  ###########
--------------------------------------
+#-------------------------------------#
 
 bboxPrague <- c(14.22,49.94,14.71,50.18)
 ggMapPrague <- get_map(location = bboxPrague, source = "osm",maptype = "terrain", crop = TRUE, zoom = 12)
@@ -239,7 +241,7 @@ ggMapPrague <- get_map(location = bboxPrague, source = "osm",maptype = "terrain"
   xlab(" ") + 
   ylab(" ") + 
   scale_color_brewer(palette="RdYlGn",name="Residua (%)",labels = c("[100;+inf)","[75;100)","[50;75)","[25;50)","[15;25)","[5;15)", "[0;5)")) + 
-  ggtitle("Shlukov· Anal˝za ReziduÌ") + 
+  ggtitle("Shlukov√° Anal√Ωza Rezidu√≠") + 
   guides(fill = guide_legend(override.aes = list(alpha = 1))) 
 
 
@@ -248,9 +250,9 @@ ggsave("net.pdf", height = 7, width = 7)
 
 
 
--------------------------------------
+#-------------------------------------#
 ##### Spatial Autocorr. testing #####
--------------------------------------
+#-------------------------------------#
 moran.test(df$price, W)
 lm.morantest(model, W)[1]
 
@@ -259,9 +261,9 @@ lm.LMtests(model, W, test=c("LMlag", "LMerr", "RLMlag", "RLMerr")) %>%
   summary()
 
 
--------------------------------------
+#-------------------------------------#
 ######## Lag and Error models #######
--------------------------------------
+#-------------------------------------#
 spatial.err <- errorsarlm(formula, data=df, W)
 summary(spatial.err)
 
@@ -270,10 +272,11 @@ summary(spatial.lag)
 
 save.image(file="Spatial.err.RData")
 save.image(file="Spatial.lag.RData")
--------------------------------------
+
+#-------------------------------------#
 ####### All in-sample metrics #######
 ### latex table
--------------------------------------
+#-------------------------------------#
 
 data.frame(
   OLS = c(model %>% AIC, model %>% logLik(), cor(model$fitted.values, log(df$price))^2, nrow(df)),
@@ -286,10 +289,11 @@ data.frame(
   kable() %>%
   kable_styling(bootstrap_options = "striped", full_width = F)
 
--------------------------------------
-#### Data Frames for all models #####
+
+#-------------------------------------#
+##### Data Frames for all models ######
 # OLS, Quant, Error, Lag
--------------------------------------
+#-------------------------------------#
 
 OLS <- data.frame(
   fitted = model$fitted.values,
@@ -339,7 +343,7 @@ ggplot(complete_diag, aes(x = actual, y = fitted)) +
   facet_wrap(model~.) +
   geom_abline(intercept = 0, slope = 1, size = 1, colour = "#FC4E07") + 
 #  my_theme2 + 
-  ggtitle("Porovn·nÌ PredikËnÌ schopnosti model˘") + 
+  ggtitle("Porovn√°n√≠ Predik√®n√≠ schopnosti model√π") + 
   theme(legend.justification=c(0, 1), legend.position=c(0.05, 0.95),
         legend.text=element_text(size=7), legend.title=element_text(size=7),
         legend.key.size = unit(0.6, "cm"),
@@ -347,9 +351,9 @@ ggplot(complete_diag, aes(x = actual, y = fitted)) +
   ) 
 
 
--------------------------------------
+#-------------------------------------#
 ####### Latex of all models #########
--------------------------------------
+#-------------------------------------#
 capture.output(
   summary(model),
   summary(model_quant),
