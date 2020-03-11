@@ -9,7 +9,8 @@ library(tidyverse)
 library(quantreg)
 library(spdep)
 library(ggmap)
-
+library(stargazer)
+library(kableExtra)
 
 -------------------------------------
 ####### Always set directory ########
@@ -251,7 +252,7 @@ ggsave("net.pdf", height = 7, width = 7)
 ##### Spatial Autocorr. testing #####
 -------------------------------------
 moran.test(df$price, W)
-lm.morantest(model, W)
+lm.morantest(model, W)[1]
 
 moran.plot(log(df$price), W)
 lm.LMtests(model, W, test=c("LMlag", "LMerr", "RLMlag", "RLMerr")) %>% 
@@ -280,10 +281,10 @@ data.frame(
   Spatial.Error = c(spatial.err %>% AIC, spatial.err %>% logLik(), cor(spatial.err$fitted.values, log(df$price))^2, nrow(df)),
   Spatial.Lag = c(spatial.lag %>% AIC, spatial.lag %>% logLik(), cor(spatial.lag$fitted.values, log(df$price))^2, nrow(df)),
   row.names = c("AIC", "Log-like.", "R", "n")
-) %>% 
-  stargazer::stargazer(type = "text", summary = F, title = "Metriky modelù")
-
-
+) %>%
+  #stargazer(type = "text", summary = F, title = "Metriky modelu")
+  kable() %>%
+  kable_styling(bootstrap_options = "striped", full_width = F)
 
 -------------------------------------
 #### Data Frames for all models #####
