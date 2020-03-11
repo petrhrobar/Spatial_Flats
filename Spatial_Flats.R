@@ -17,8 +17,8 @@ library(kableExtra)
 #-------------------------------------#
 ####### Always set directory ########
 #-------------------------------------#
-
-
+getwd()
+setwd("C:/Users/petr7/OneDrive/ŠKOLA/PROSTOROVÉ BYTY")
 
 #-------------------------------------#
 ######### Datasets loading  #########
@@ -128,6 +128,9 @@ purrr::map(set_names(3:6), ~kmeans(CORD, .x)) %>%
 
 model_kmeans <- lm(log(price) ~ Rooms + Meters + I(Rooms^2) + Mezone + KK + panel + balcony_or_terrase + novostavba + factor(KMEAN), df)
 model_kmeans %>% summary()
+
+model_quant_kmean = rq(log(price) ~ Rooms + Meters + I(Rooms^2) + Mezone + KK + panel + balcony_or_terrase + novostavba + factor(KMEAN), data = df)
+model_quant_kmean %>% summary(se = "boot")
 
 
 stargazer::stargazer(model, 
@@ -280,14 +283,22 @@ save.image(file="Spatial.lag.RData")
 
 data.frame(
   OLS = c(model %>% AIC, model %>% logLik(), cor(model$fitted.values, log(df$price))^2, nrow(df)),
+  
+  OLS_Kmeans = c(model_kmeans %>% AIC, model_kmeans %>% logLik(), cor(model_kmeans$fitted.values, log(df$price))^2, nrow(df)),
+  
   Quantile = c(model_quant %>% AIC, model_quant %>% logLik(), cor(model_quant$fitted.values, log(df$price))^2, nrow(df)),
+  
+  Quantile_Kmenas = c(model_quant_kmean %>% AIC, model_quant_kmean %>% logLik(), cor(model_quant_kmean$fitted.values, log(df$price))^2, nrow(df)),
+  
   Spatial.Error = c(spatial.err %>% AIC, spatial.err %>% logLik(), cor(spatial.err$fitted.values, log(df$price))^2, nrow(df)),
+  
   Spatial.Lag = c(spatial.lag %>% AIC, spatial.lag %>% logLik(), cor(spatial.lag$fitted.values, log(df$price))^2, nrow(df)),
+  
   row.names = c("AIC", "Log-like.", "R", "n")
 ) %>%
-  #stargazer(type = "text", summary = F, title = "Metriky modelu")
-  kable() %>%
-  kable_styling(bootstrap_options = "striped", full_width = F)
+  stargazer(type = "text", summary = F, title = "Metriky modelu", flip = T)
+  #kable() %>%
+  #kable_styling(bootstrap_options = "striped", full_width = F)
 
 
 #-------------------------------------#
