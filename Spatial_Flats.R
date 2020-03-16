@@ -219,10 +219,7 @@ ggMapPrague <- get_map(location = bboxPrague, source = "osm",maptype = "terrain"
    geom_point(data = df, aes(x = CORD[ ,1], y = CORD[ ,2], color = factor(d$res_coded)),
               size = 0.6, alpha = 0.70) +
 
-   # geom_point(data = df, aes(x = CORD[ ,1], y = CORD[ ,2]),
-   #           size = 0.6, alpha = 0.70) +
-
-  #  geom_segment(data = DA, aes(xend = long_to, yend = lat_to, x = DA$long, y = DA$lat), size=0.5, color = "red") +
+  #geom_segment(data = DA, aes(xend = long_to, yend = lat_to, x = DA$long, y = DA$lat), size=0.5, color = "red") +
 
   theme(legend.justification=c(0, 1), legend.position=c(0.05, 0.95),
         legend.text=element_text(size=7), legend.title=element_text(size=7),
@@ -240,8 +237,7 @@ ggMapPrague <- get_map(location = bboxPrague, source = "osm",maptype = "terrain"
   guides(fill = guide_legend(override.aes = list(alpha = 1))) 
 
 
-setwd("C:/Users/petr7/Desktop")
-ggsave("net.pdf", height = 7, width = 7)
+ggsave("resid_OLS.pdf", height = 7, width = 7)
 
 beatCol <- colorFactor(palette = 'RdYlGn', d$res_coded)
 
@@ -314,10 +310,11 @@ data.frame(
   Spatial.Lag = c(spatial.lag %>% AIC, spatial.lag %>% logLik(), cor(spatial.lag$fitted.values, log(df$price))^2, nrow(df)),
   
   row.names = c("AIC", "Log-like.", "R", "n")
-) %>%
-  stargazer(type = "text", summary = F, title = "Metriky modelu", flip = T)
-  #kable() %>%
-  #kable_styling(bootstrap_options = "striped", full_width = F)
+) %>% 
+  round(3) %>%
+  #stargazer(type = "text", summary = F, title = "Metriky modelu", flip = F)
+  kable() %>%
+  kable_styling(bootstrap_options = "striped", full_width = F)
 
 
 #-------------------------------------#
@@ -364,12 +361,17 @@ Spatial_Lag <- data.frame(
 complete_diag = rbind(OLS, Quant_Req, Spatial_error, Spatial_Lag)
 complete_diag <- complete_diag %>% arrange(residuals) %>% tail(11920)
 
+
+#-------------------------------------#
+######  Actual vs Fitted values #######
+#-------------------------------------#
+
+
 ggplot(complete_diag, aes(x = actual, y = fitted)) + 
   geom_point(aes(colour = residuals), size = 2, alpha = 1) + 
-  #scale_fill_brewer() +
   facet_wrap(model~.) +
   geom_abline(intercept = 0, slope = 1, size = 1, colour = "#FC4E07") + 
-#  my_theme2 + 
+  my_theme + 
   ggtitle("Porovnání Predikèní schopnosti modelù") + 
   theme(legend.justification=c(0, 1), legend.position=c(0.05, 0.95),
         legend.text=element_text(size=7), legend.title=element_text(size=7),
@@ -377,6 +379,22 @@ ggplot(complete_diag, aes(x = actual, y = fitted)) +
         legend.box.background = element_rect(colour = "black", size = 0.75)
   ) 
 
+#-------------------------------------#
+#####  Histogram of Residuals    ######
+#-------------------------------------#
+
+
+ggplot(complete_diag, aes(x = residuals)) + 
+  geom_histogram(bins = 25, color = "#FC4E07", fill = "#00AFBB") + 
+  #scale_fill_brewer() +
+  facet_wrap(model~.) +
+  my_theme +
+  ggtitle("Porovnání Predikèní schopnosti modelù") + 
+  theme(legend.justification=c(0, 1), legend.position=c(0.05, 0.95),
+        legend.text=element_text(size=7), legend.title=element_text(size=7),
+        legend.key.size = unit(0.6, "cm"),
+        legend.box.background = element_rect(colour = "black", size = 0.75)
+  ) 
 
 #-------------------------------------#
 ####### Latex of all models #########
