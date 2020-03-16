@@ -179,7 +179,7 @@ plot(W, CORD)
 # NN - matrix
 #-------------------------------------#
 
-cns <- knearneigh(CORD, k=4, longlat=T) 
+cns <- knearneigh(CORD, k=7, longlat=T) 
 scnsn <- knn2nb(cns, row.names = NULL, sym = T) 
 W <- nb2listw(scnsn)
 
@@ -216,10 +216,12 @@ ggMapPrague <- get_map(location = bboxPrague, source = "osm",maptype = "terrain"
 
  ggmap(ggMapPrague) + 
    # 
-   geom_point(data = df, aes(x = CORD[ ,1], y = CORD[ ,2], color = factor(d$res_coded)),
-              size = 0.6, alpha = 0.70) +
+   # geom_point(data = df, aes(x = CORD[ ,1], y = CORD[ ,2], color = factor(d$res_coded)),
+   #            size = 0.6, alpha = 0.70) +
+   
+  geom_point(data = df, aes(x = CORD[ ,1], y = CORD[ ,2]), color = "black", size = 1) +
 
-  #geom_segment(data = DA, aes(xend = long_to, yend = lat_to, x = DA$long, y = DA$lat), size=0.15, color = "red") +
+  geom_segment(data = DA, aes(xend = long_to, yend = lat_to, x = DA$long, y = DA$lat), size=0.01, color = "red", alpha = 0.75) +
 
   theme(legend.justification=c(0, 1), legend.position=c(0.05, 0.95),
         legend.text=element_text(size=7), legend.title=element_text(size=7),
@@ -237,7 +239,7 @@ ggMapPrague <- get_map(location = bboxPrague, source = "osm",maptype = "terrain"
   guides(fill = guide_legend(override.aes = list(alpha = 1))) 
 
 
-ggsave("resid_OLS.pdf", height = 7, width = 7)
+ggsave("NN_7.pdf", height = 7, width = 7)
 
 beatCol <- colorFactor(palette = 'RdYlGn', d$res_coded)
 
