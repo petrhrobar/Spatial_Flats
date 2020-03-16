@@ -219,7 +219,7 @@ ggMapPrague <- get_map(location = bboxPrague, source = "osm",maptype = "terrain"
    geom_point(data = df, aes(x = CORD[ ,1], y = CORD[ ,2], color = factor(d$res_coded)),
               size = 0.6, alpha = 0.70) +
 
-  #geom_segment(data = DA, aes(xend = long_to, yend = lat_to, x = DA$long, y = DA$lat), size=0.5, color = "red") +
+  #geom_segment(data = DA, aes(xend = long_to, yend = lat_to, x = DA$long, y = DA$lat), size=0.15, color = "red") +
 
   theme(legend.justification=c(0, 1), legend.position=c(0.05, 0.95),
         legend.text=element_text(size=7), legend.title=element_text(size=7),
