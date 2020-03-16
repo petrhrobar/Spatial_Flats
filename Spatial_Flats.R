@@ -13,10 +13,12 @@ library(spdep)
 library(ggmap)
 library(stargazer)
 library(kableExtra)
+library(leaflet)
 
 #-------------------------------------#
 ####### Always set directory ########
 #-------------------------------------#
+
 getwd()
 setwd("C:/Users/petr7/OneDrive/ŠKOLA/PROSTOROVÉ BYTY")
 
@@ -35,17 +37,16 @@ df %>% select(gps.lon, gps.lat) %>% plot()
 
 df[ ,4:12] %>% stargazer::stargazer(type = "text", flip = T)
 
-
-
 #-------------------------------------#
 ######### General Formula #########
 #-------------------------------------#
-formula <- as.formula(log(price) ~ Rooms + Meters + I(Rooms^2) + Mezone + KK + panel + balcony_or_terrase + novostavba)
 
+formula <- as.formula(log(price) ~ Rooms + Meters + I(Rooms^2) + Mezone + KK + panel + balcony_or_terrase + novostavba)
 
 #-------------------------------------#
 ######## OLS and Quant model ########
 #-------------------------------------#
+
 model <- lm(formula, data = df)
 model_quant <- rq(formula, data = df)
 
@@ -53,11 +54,10 @@ model_quant <- rq(formula, data = df)
 model %>% summary()
 model_quant %>% summary(se = "boot")
 
-
-
 #-------------------------------------#
 ######## Bootstrap std. OLS #########
 #-------------------------------------#
+
 rep = 500
 bs.coeffs <- matrix(NA, nrow = rep, ncol = 9)
 for (b in 1:rep) {
@@ -92,8 +92,6 @@ rq(data=df,
   #my_theme +
   ggtitle("Quantile and OLS comparison")
 
-
-
 #-------------------------------------#
 ##### Adding small rand. number #####
 #-------------------------------------#
@@ -103,8 +101,6 @@ CORD[ ,1] %>% unique() %>% length()
 CORD[ ,1] <- CORD[ ,1] + runif(min = -10E-4, max = 10E-4, dim(CORD)[1])
 CORD[ ,2] <- CORD[ ,2] + runif(min = -10E-4, max = 10E-4, dim(CORD)[1])
 CORD[ ,1] %>% unique() %>% length()
-
-
 
 #-------------------------------------#
 ####### Kmean of Coordinates ########
@@ -125,13 +121,11 @@ purrr::map(set_names(3:6), ~kmeans(CORD, .x)) %>%
   theme(legend.position = "none")
 
 
-
 model_kmeans <- lm(log(price) ~ Rooms + Meters + I(Rooms^2) + Mezone + KK + panel + balcony_or_terrase + novostavba + factor(KMEAN), df)
 model_kmeans %>% summary()
 
 model_quant_kmean = rq(log(price) ~ Rooms + Meters + I(Rooms^2) + Mezone + KK + panel + balcony_or_terrase + novostavba + factor(KMEAN), data = df)
 model_quant_kmean %>% summary(se = "boot")
-
 
 stargazer::stargazer(model, 
                      model_kmeans, 
@@ -141,7 +135,6 @@ stargazer::stargazer(model,
 #-------------------------------------#
 ### Clustering residuals from OLS ###
 #-------------------------------------#
-
 
 d = 
   data.frame(model$fitted.values, df$price) %>% 
@@ -170,13 +163,11 @@ d %>%
 
 d$res_coded<-factor(d$res_coded)
 
-
-
-
 #-------------------------------------#
 ##### Spatial Models - W_matrix #####
 # Distance - matrix
 #-------------------------------------#
+
 cns <- dnearneigh(CORD, d1=0, d2=0.9, longlat = T)
 summary(cns)
 plot(cns, CORD, col = "red")
@@ -187,10 +178,10 @@ plot(W, CORD)
   ##### Spatial Models - W_matrix #####
 # NN - matrix
 #-------------------------------------#
+
 cns <- knearneigh(CORD, k=4, longlat=T) 
 scnsn <- knn2nb(cns, row.names = NULL, sym = T) 
 W <- nb2listw(scnsn)
-
 
 #-------------------------------------#
 ###### DataFrame from W_matrix ######
@@ -224,12 +215,13 @@ bboxPrague <- c(14.22,49.94,14.71,50.18)
 ggMapPrague <- get_map(location = bboxPrague, source = "osm",maptype = "terrain", crop = TRUE, zoom = 12)
 
  ggmap(ggMapPrague) + 
+   # 
    geom_point(data = df, aes(x = CORD[ ,1], y = CORD[ ,2], color = factor(d$res_coded)),
               size = 0.6, alpha = 0.70) +
-  
-  # geom_point(data = df, aes(x = CORD[ ,1], y = CORD[ ,2]),
-  #            size = 0.6, alpha = 0.70) +
-  # 
+
+   # geom_point(data = df, aes(x = CORD[ ,1], y = CORD[ ,2]),
+   #           size = 0.6, alpha = 0.70) +
+
   #  geom_segment(data = DA, aes(xend = long_to, yend = lat_to, x = DA$long, y = DA$lat), size=0.5, color = "red") +
 
   theme(legend.justification=c(0, 1), legend.position=c(0.05, 0.95),
@@ -251,11 +243,23 @@ ggMapPrague <- get_map(location = bboxPrague, source = "osm",maptype = "terrain"
 setwd("C:/Users/petr7/Desktop")
 ggsave("net.pdf", height = 7, width = 7)
 
+beatCol <- colorFactor(palette = 'RdYlGn', d$res_coded)
 
+leaflet() %>% 
+  addProviderTiles("CartoDB.Positron") %>% 
+  addCircleMarkers(data = df, lng = df$gps.lon, lat = df$gps.lat, 
+            color = ~beatCol(d$res_coded),       
+            radius = (1 - d$res_coded)*3) %>% 
+  addLegend('bottomright', 
+            pal = beatCol, 
+            values = d$res_coded,
+            opacity = 1, 
+            labels = c("[100;+inf)", "[75;100)", "[50;75)", "[25;50)", "[15;25)", "[5;15)", "[0;5)"))
 
 #-------------------------------------#
 ##### Spatial Autocorr. testing #####
 #-------------------------------------#
+
 moran.test(df$price, W)
 lm.morantest(model, W)[1]
 
@@ -263,10 +267,25 @@ moran.plot(log(df$price), W)
 lm.LMtests(model, W, test=c("LMlag", "LMerr", "RLMlag", "RLMerr")) %>% 
   summary()
 
+local <- localmoran(x = df$price,
+                    listw = W)
+
+df$local_moran_pvalue <- local[ ,5]
+
+#-------------------------------------#
+#####  Hot spots and Coldsspots #######
+#-------------------------------------#
+
+df$spot <- localG(df$price, W)
+df$spot <- ifelse(abs(df$spot) < 3, 0, df$spot)
+df$spot <- ifelse(df$spot < 0, -1, df$spot)
+df$spot <- ifelse(df$spot > 0, 1, df$spot)
+
 
 #-------------------------------------#
 ######## Lag and Error models #######
 #-------------------------------------#
+
 spatial.err <- errorsarlm(formula, data=df, W)
 summary(spatial.err)
 
@@ -342,11 +361,8 @@ Spatial_Lag <- data.frame(
 ) %>% 
   select(actual, model, fitted, residuals)
 
-
 complete_diag = rbind(OLS, Quant_Req, Spatial_error, Spatial_Lag)
 complete_diag <- complete_diag %>% arrange(residuals) %>% tail(11920)
-
-
 
 ggplot(complete_diag, aes(x = actual, y = fitted)) + 
   geom_point(aes(colour = residuals), size = 2, alpha = 1) + 
@@ -365,6 +381,7 @@ ggplot(complete_diag, aes(x = actual, y = fitted)) +
 #-------------------------------------#
 ####### Latex of all models #########
 #-------------------------------------#
+
 capture.output(
   summary(model),
   summary(model_quant),
