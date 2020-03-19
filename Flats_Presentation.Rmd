@@ -1,0 +1,169 @@
+---
+title: "Prostorové modely na přažském trhu nemovitostí"
+author: Petr Hrobař
+output:
+  html_document:
+    fig_caption: yes
+    fig_height: 8
+    fig_width: 10
+    highlight: pygments
+    message: no
+    number_sections: yes
+    toc: yes
+    warnings: no
+  pdf_document:
+    toc: yes
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r set knitr options, echo = FALSE}
+# Defaultní nastavení
+knitr::opts_chunk$set(echo = F,
+                      message = FALSE,
+                      warning = FALSE,
+                      fig.width=12, fig.height=10)
+```
+
+```{r}
+library(tidyverse)
+library(stargazer)
+library(knitr)
+library(kableExtra)
+```
+
+```{r, echo=F}
+# Téma na ggplot
+my_theme <- 
+  theme_light() + 
+  theme(
+    plot.title = element_text(size = 16, face = "bold"),
+    axis.text = element_text(size = 10),
+    axis.title = element_text(size = 14),
+    axis.title.y = element_text(face = "bold", size = 12),
+    axis.title.x = element_text(face = "bold", size = 12),
+    legend.text = element_text(size = 10),
+    legend.title = element_text(size = 12),
+    panel.border = element_rect(colour = "gray35", fill=NA, size= 1.7),
+    panel.grid.major = element_line(colour = "lightgrey"),
+    legend.position = "bottom",
+    legend.direction = "vertical",
+    strip.background = element_rect(fill = "gray91", color =  "black"),
+    strip.text = element_text(color = "black"))
+```
+
+# Úvod
+ 
+V této seminární práci budeme využívat prostorové modely pro modelování a predikovaní cen na trhu pražských nemovistostí. V návaznasti na $\textit{Toblerovo první pravidlo geografie o podobnosti sousedicích jednotek}$ nejdříve ověřujeme prostorovou závislost v cenách přažských bytů. Následně aplikujeme neprostorové a prostorové modely k oveření stavených hypotéz. 
+ 
+Ukazuje se, že využití prostorových modelů dokáže zlepšít přesnost predikce cen nemovitostí. Dále také s využitím neprostorových modelů identifikováváme $\textit{„honosné“}$ clusteri, tj. lokace ve kterých může být cena nemovistí více než dvojnásobné čistě z důvodů umístění.
+
+## Stanovení Hypotéz
+Formálně oveřujeme následující stanovené hypotézi:
+
+$$H_{1}: \textit{Z důvodu prostorové autokorelace disponují prostorové modely lepší predikční schopnosti.}$$
+
+$$H_{2}: \textit{Historické centrum prahy představuje hlavní „honosný“ cluster.}$$
+
+$$H_{3}: \textit{Novostavba výrazně zvýší cenu}$$
+
+# Dataset a zdroj.
+
+Celý dataset v této studii byl získán z internetové stránky: https://www.sreality.cz/. Z důvodů přesnosti analýzy a možné $\textit{statistické inference}$ je ale nezbytné stanovit si následující předpoklady a nemovitostech inzerovaných na zmíněné stránce:
+
+$$1)  \textit{ Stránka sreality.cz představuje reprezentativní soubor všech pražských bytů.}$$
+$$2)  \textit{ Veškeré charakteristiky (cena, poč. pokojů, atd.) jsou v každém inzerátu přesné a ve stejných jednotkách. }$$
+
+## Základní charakteristiky
+
+Celkový dataset byl získán z internetových stránek technikou $\textit{web scraping}$ s využitím programovacího jazyku python. Po extrakci dat z internetové stránky v den 10. března 2020 bylo získáno zhruba $\textbf{4012}$ nemovistostí, kde každé pozorování obsahovalo více než 80 $\textit{proměných}$. 
+
+Takto získaný dataset byl následně vyfiltrován a tranformován. Byly odstraněné promměné, které nepovažujeme pro naši analyzů za vhodné. Sem patří např. proměnné typu: $\textit{identifiční klíče a čísla v databázi, cluster databáze, primární klíče atd.}$.
+
+Naopak proměnné, které jsou pro naší analýzu nezbytné jako: $\textit{Cena, počet pokojů, metry, typ budovy, souřadnice, atd.}$ byly v datasetu ponechány. Celkový dataset tedy obsahuje následující proměnné:
+
+$$\textit{Cena, Metry čtverečný, Počet pokojů, Mezon, kuchyňský kout, Panel, Balkón/Terasa, Novostavba}$$. A z důvodů prostorových data také $\textit{Souřadnice}$.
+
+Nakonec bylo nezbytné odstranit všechna pozorování, která obsahovala chybějící záznam v jakékoliv proměnné. Celkový finální dataset tedy obsahuje $\textbf{2984}$ pozorování.
+
+### Charakteristiky proměnných {.tabset .tabset-fade} 
+
+#### Základní statistiky proměnných
+
+```{r}
+setwd("C:/Users/petr7/OneDrive/ŠKOLA/PROSTOROVÉ BYTY")
+
+#-------------------------------------#
+######### Datasets loading  #########
+#-------------------------------------#
+
+df <- read.csv("Dataset_Filtered_cleaned.csv", sep = ",")
+
+
+df %>% 
+  dplyr::select(price, Meters, Rooms, Mezone, KK, panel, balcony_or_terrase, novostavba) %>% 
+  stargazer(type = "text", summary = T)
+  #kable() %>%
+  #kable_styling(bootstrap_options = "striped", full_width = F)
+```
+
+
+
+#### Distribuce proměnných
+
+```{r}
+
+df %>% 
+  dplyr::select(price, Meters, Rooms, Mezone, KK, panel, balcony_or_terrase, novostavba) %>% reshape2::melt() %>% 
+  ggplot(aes(x = value)) + 
+  geom_histogram(aes(fill = variable), color = "black") + 
+  facet_wrap(~variable, scales = "free") + 
+  scale_alpha_continuous() + 
+  my_theme + 
+  theme(legend.position = "none")
+```
+
+
+#### Korelace s Vysvětlujicí proměnou
+
+Je patrné, že jako vysvětlující proměnou uvažujeme $\textit{Cenu}$. Nahlédněme tedy na korelaci mezi cenou a každou vysvětlujicí proměnnou:
+
+```{r}
+
+
+df %>% 
+  dplyr::select(price, Meters, Rooms, Mezone, KK, panel, balcony_or_terrase, novostavba) %>% 
+    mutate(id = row_number()) %>%
+    gather(variable, value, -id, -price) %>%
+    ggplot(aes(y = price, x = value))+
+    geom_point(color = "dodgerblue")+
+    geom_smooth(method = "lm", color = "red")+
+    facet_wrap(~variable, scales = "free") + 
+    my_theme + 
+    theme(legend.position = "none")
+
+```
+
+#### Korelace mezi proměnnými
+
+```{r}
+df %>% 
+  dplyr::select(price, Meters, Rooms, Mezone, KK, panel, balcony_or_terrase, novostavba) %>% cor() %>% 
+  kable() %>%
+  kable_styling(bootstrap_options = "striped", full_width = F)
+```
+
+</div>
+</div>
+
+# Metotologie a modely
+
+Pro oveření našich stanovených hypotéz je nezbytné sestavit konkrétní model, který budeme odhadovat. 
+
+Formálně využijeme model, který má následující tvar:
+formula <- as.formula(log(price) ~ Rooms + Meters + I(Rooms^2) + Mezone + KK + panel + balcony_or_terrase + novostavba)
+
+$$\textit{log(cena)} = \beta_{0} +  \beta_{1}pokoje  + \beta_{2}pokoje^{2} + \beta_{3}metry -čtver.+ \beta_{4}mezon + \beta_{5}kk + + \beta_{6}panel + \beta_{7}terasa/balkon + \beta_{8}novostavba + \epsilon.$$
+
+
+Model 
