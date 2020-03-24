@@ -109,7 +109,7 @@ CORD[ ,1] %>% unique() %>% length()
 KME <- kmeans(CORD, 3)
 df$KMEAN = KME$cluster
 
-purrr::map(set_names(3:6), ~kmeans(CORD, .x)) %>% 
+purrr::map(set_names(5), ~kmeans(CORD, .x)) %>% 
   purrr::map(broom::augment, CORD) %>% 
   imap(~mutate(.x, num_clust = .y)) %>% 
   bind_rows() %>% 
