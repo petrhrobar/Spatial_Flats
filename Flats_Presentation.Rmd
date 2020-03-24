@@ -26,10 +26,17 @@ knitr::opts_chunk$set(echo = F,
 ```
 
 ```{r}
+rm(list = ls())
+
 library(tidyverse)
 library(stargazer)
 library(knitr)
 library(kableExtra)
+library(quantreg)
+library(spdep)
+library(ggmap)
+library(stargazer)
+library(leaflet)
 ```
 
 ```{r, echo=F}
@@ -89,7 +96,6 @@ Nakonec bylo nezbytné odstranit všechna pozorování, která obsahovala chybě
 ### Charakteristiky proměnných {.tabset .tabset-fade} 
 
 #### Základní statistiky proměnných
-
 ```{r}
 setwd("C:/Users/petr7/OneDrive/ŠKOLA/PROSTOROVÉ BYTY")
 
@@ -101,16 +107,15 @@ df <- read.csv("Dataset_Filtered_cleaned.csv", sep = ",")
 
 
 df %>% 
-  dplyr::select(price, Meters, Rooms, Mezone, KK, panel, balcony_or_terrase, novostavba) %>% 
-  stargazer(type = "text", summary = T)
-  #kable() %>%
-  #kable_styling(bootstrap_options = "striped", full_width = F)
+  dplyr::select(price, Meters, Rooms, Mezone, KK, panel, balcony_or_terrase, novostavba) %>%
+  head() %>% 
+  kable() %>%
+  kable_styling(bootstrap_options = "striped", full_width = F)
 ```
 
 
 
 #### Distribuce proměnných
-
 ```{r}
 
 df %>% 
@@ -124,28 +129,7 @@ df %>%
 ```
 
 
-#### Korelace s Vysvětlujicí proměnou
-
-Je patrné, že jako vysvětlující proměnou uvažujeme $\textit{Cenu}$. Nahlédněme tedy na korelaci mezi cenou a každou vysvětlujicí proměnnou:
-
-```{r}
-
-
-df %>% 
-  dplyr::select(price, Meters, Rooms, Mezone, KK, panel, balcony_or_terrase, novostavba) %>% 
-    mutate(id = row_number()) %>%
-    gather(variable, value, -id, -price) %>%
-    ggplot(aes(y = price, x = value))+
-    geom_point(color = "dodgerblue")+
-    geom_smooth(method = "lm", color = "red")+
-    facet_wrap(~variable, scales = "free") + 
-    my_theme + 
-    theme(legend.position = "none")
-
-```
-
 #### Korelace mezi proměnnými
-
 ```{r}
 df %>% 
   dplyr::select(price, Meters, Rooms, Mezone, KK, panel, balcony_or_terrase, novostavba) %>% cor() %>% 
@@ -153,8 +137,61 @@ df %>%
   kable_styling(bootstrap_options = "striped", full_width = F)
 ```
 
-</div>
-</div>
+
+## Distribuce pozorování v prostoru
+V rychlosti nahlédněme na rozmístění pražských nemovitostí.
+```{r, warning=F, echo=F, message=F}
+# Ke všem souřadnicím přičteme malé náhodné číslo, aby byla každá unikátní...
+
+CORD = cbind(df$gps.lon, df$gps.lat)
+CORD[ ,1] <- CORD[ ,1] + runif(min = -10E-4, max = 10E-4, dim(CORD)[1])
+CORD[ ,2] <- CORD[ ,2] + runif(min = -10E-4, max = 10E-4, dim(CORD)[1])
+
+bboxPrague <- c(14.22,49.94,14.71,50.18)
+ggMapPrague <- get_map(location = bboxPrague, source = "osm",maptype = "terrain", crop = TRUE, zoom = 12)
+
+ggmap(ggMapPrague) + 
+  geom_point(data = df, aes(x = CORD[ ,1], y = CORD[ ,2]), color = "black", size = 0.75, alpha = 0.7) + 
+    theme(legend.justification=c(0, 1), legend.position=c(0.05, 0.95),
+        legend.text=element_text(size=7), legend.title=element_text(size=7),
+        legend.key.size = unit(0.2, "cm"),
+        axis.text.x=element_blank(),
+        axis.ticks.x=element_blank(),
+        axis.text.y=element_blank(),
+        axis.ticks.y=element_blank(),
+        legend.box.background = element_rect(colour = "black", size = 0.05)
+        ) +
+  xlab(" ") + 
+  ylab(" ") + 
+  ggtitle("Distribuce pozorování")
+```
+
+Abychom částěčně vzali vpotaz prostorovu závislost (Krom. prostorových modelů), lze využít proměnné $\textit{longitude, latitude}$ a zařadit je do regresního modelu.
+
+Jelikož jsou obě proměnné ale nevhodně spojité využijeme Clusterovací algoritmus, který přiřadí každou proměnou do určité kategorie, to modelu bude následně vstupovat $\textit{dummy}$ hodnota tohoto clusteru, pokud bude vycházet statisticky významný, lze považovat prostorové modely za vhodný postup.
+
+
+```{r}
+KME <- kmeans(CORD, 5)
+df$KMEAN = KME$cluster
+
+MAPA <- df %>% select(gps.lon, gps.lat, KMEAN)
+colnames(MAPA) = c("x", "y", "v")
+
+ggmap(ggMapPrague) + 
+  geom_point(data = MAPA, aes(x = x, y = y, color = factor(v)), size = 0.7) + 
+    stat_ellipse(data= MAPA, aes(x=x, y=y, fill=factor(v)),
+               geom="polygon", level=0.95, alpha=0.25) + 
+  theme(legend.position = "none", 
+        axis.text.x=element_blank(),
+        axis.ticks.x=element_blank(),
+        axis.text.y=element_blank(),
+        axis.ticks.y=element_blank()) + 
+  ylab(" ") + 
+  xlab(" ") + 
+  ggtitle("Clusterování lokalit pražských bytů")
+
+```
 
 # Metotologie a modely
 
@@ -166,4 +203,376 @@ formula <- as.formula(log(price) ~ Rooms + Meters + I(Rooms^2) + Mezone + KK + p
 $$\textit{log(cena)} = \beta_{0} +  \beta_{1}pokoje  + \beta_{2}pokoje^{2} + \beta_{3}metry -čtver.+ \beta_{4}mezon + \beta_{5}kk + + \beta_{6}panel + \beta_{7}terasa/balkon + \beta_{8}novostavba + \epsilon.$$
 
 
-Model 
+Model budeme odhadovat několika metodymi: $\textit{OLS, Kvantilová regrese}$ a prostorové modely: $\textit{spatial lag, spatial error model}$.
+
+```{r, results='asis'}
+formula <- as.formula(log(price) ~ Rooms + Meters + I(Rooms^2) + Mezone + KK + panel + balcony_or_terrase + novostavba)
+
+
+model <- lm(formula, data = df)
+model_quant <- rq(formula, data = df)
+
+#model_quant %>% summary(se = "boot")
+
+KME <- kmeans(CORD, 5)
+df$KMEAN = KME$cluster
+
+model_kmeans <- lm(log(price) ~ Rooms + Meters + I(Rooms^2) + Mezone + KK + panel + balcony_or_terrase + novostavba + factor(KMEAN), df)
+
+model_quant_kmean <- rq(log(price) ~ Rooms + Meters + I(Rooms^2) + Mezone + KK + panel + balcony_or_terrase + novostavba + factor(KMEAN), data = df)
+
+stargazer(model, model_kmeans, model_quant, model_quant_kmean,
+          type="html", 
+          column.labels=c("OLS",
+                          "Quant reg.",
+                          "OLS - kmeans",
+                          "Quant reg. - Kmeans"),
+          omit.stat = c("rsq", "f")
+          )
+```
+
+
+
+Z výstupu výše vidíme, že proměnné, které zachycují umístění nemovistosti v konkrétním clusteru jsou statisticky významné (formálně musíme provádět testy hokoskedasticity, ale i v případě robustních odhadů vychazí signifikantní).
+
+Pro oveření stability koeficientů pro určité kvantily můžeme nahlédnout na podobnost odhadů mezi metodu nejmenších čtverců a kvantilovou regresí:
+
+```{r}
+rq(data=df, 
+   tau= 1:9/10,
+   formula = formula) %>%
+  broom::tidy(se.type = "boot") %>%
+  #filter(!grepl("Intercept", term)) %>%
+  #filter(!grepl("factor", term)) %>%
+  ggplot(aes(x=tau,y=estimate))+
+  geom_point(color="#27408b", size = 3)+ 
+  geom_line(color="#27408b", size = 1)+ 
+  geom_smooth(method=  "lm", colour = "red", se = T, fill = "red", alpha = 0.15) +  
+  facet_wrap(~term, scales="free", ncol=3) + 
+  geom_ribbon(aes(ymin=conf.low,ymax=conf.high),alpha=0.25, fill="#27408b") + 
+  my_theme +
+  ggtitle("Porovnání OLS a kvantilové regrese")
+```
+
+Vidíme, že většina proměnných je pro různé hodnoty kvantilů stabilní. Z proměnných, které za stabilní považovat nelze vidíme proměnou $\textit{Novostavba}$, která působí jako statisticky nevýznamná.
+
+Jelikož jsme prokázali významný faktor umístění nemovistosti, dle statistické významnosti proměnných $\textit{K-means}$ přejdeme nyní k prostorovým modelům.
+
+
+### Modely Prostorové ekonometrie (Relace sousednosti) {.tabset .tabset-fade} 
+
+V prostorových modelech je nezbytné nadefinovat si $\textit{Matici sousednosti W}$, která identifikuje, které jednotky považujeme za sousední a které již nikoliv:
+
+Níže nahlédněme na několik způsobů generování vztahů sousednosti
+
+#### Maximální počtu sousedů (4 jednotky):
+```{r}
+
+cns <- knearneigh(CORD, k=4, longlat=T) 
+scnsn <- knn2nb(cns, row.names = NULL, sym = T) 
+W <- nb2listw(scnsn)
+
+moran <- 
+  cbind(
+moran.test(df$price, W)[[3]][[1]],
+moran.test(df$price, W)[[3]][[3]], 
+moran.test(df$price, W)[[2]]
+) %>% 
+  data.frame(row.names = " ")
+
+colnames(moran) = c("I Statistic", "Variance", "p-value")
+  moran %>%   
+    kable() %>%
+    kable_styling(bootstrap_options = "striped", full_width = F)
+```
+
+#### Maximální počtu sousedů (7 jednotky):
+```{r}
+
+cns <- knearneigh(CORD, k=7, longlat=T) 
+scnsn <- knn2nb(cns, row.names = NULL, sym = T) 
+W <- nb2listw(scnsn)
+
+moran <- 
+  cbind(
+moran.test(df$price, W)[[3]][[1]],
+moran.test(df$price, W)[[3]][[3]], 
+moran.test(df$price, W)[[2]]
+) %>% 
+  data.frame(row.names = " ")
+
+colnames(moran) = c("I-Statistic", "Variance", "p-value")
+  moran %>%   
+    kable() %>%
+    kable_styling(bootstrap_options = "striped", full_width = F)
+```
+
+#### Maximální vzdálenosti (500 metrů):
+```{r}
+
+cns <- dnearneigh(CORD, d1=0, d2=0.5, longlat = T)
+W <- nb2listw(cns, zero.policy = TRUE)
+
+moran <- 
+  cbind(
+moran.test(df$price, W, zero.policy = T)[[3]][[1]],
+moran.test(df$price, W, zero.policy = T)[[3]][[3]], 
+moran.test(df$price, W, zero.policy = T)[[2]]
+) %>% 
+  data.frame(row.names = " ")
+
+colnames(moran) = c("I-Statistic", "Variance", "p-value")
+  moran %>%   
+    kable() %>%
+    kable_styling(bootstrap_options = "striped", full_width = F)
+```
+
+#### Maximální vzdálenosti (900 metrů):
+```{r}
+
+cns <- dnearneigh(CORD, d1=0, d2=0.9, longlat = T)
+W <- nb2listw(cns, zero.policy = TRUE)
+
+moran <- 
+  cbind(
+moran.test(df$price, W, zero.policy = T)[[3]][[1]],
+moran.test(df$price, W, zero.policy = T)[[3]][[3]], 
+moran.test(df$price, W, zero.policy = T)[[2]]
+) %>% 
+  data.frame(row.names = " ")
+
+colnames(moran) = c("I-Statistic", "Variance", "p-value")
+  moran %>%   
+    kable() %>%
+    kable_styling(bootstrap_options = "striped", full_width = F)
+```
+
+
+### Modely Prostorové ekonometrie Spatial Lag, Spatial Error
+```{r}
+cns <- knearneigh(CORD, k=7, longlat=T) 
+scnsn <- knn2nb(cns, row.names = NULL, sym = T) 
+W <- nb2listw(scnsn)
+
+spatial.err <- errorsarlm(formula, data=df, W)
+summary(spatial.err)
+
+spatial.lag <- lagsarlm(formula, data=df, W)
+summary(spatial.lag)
+
+```
+
+
+Dle parametrů prostorové autokorelace u obou modelů výše $\lambda, \rho$ je patrné, že uvažované modely zachycují DGP lépe, než modely bez prostorové závislosti, náhlédněme na metriky všech odhadnutých modelů.
+
+Využijeme následující metriky: $\textit{AIC, log-likel}$ a $R_{pse}$. Poslední z uvažovaných metrik je $\textit{pseudo R}$, které je spočteno následujícím způsobem:
+$$R_{pse.} = corr(y, \hat y)^2$$,
+využití této metriky nám uvožní zachytit predikční shcopnosti každého modelu.
+```{r}
+data.frame(
+  OLS = c(model %>% AIC, model %>% logLik(), cor(model$fitted.values, log(df$price))^2, nrow(df)),
+  
+  OLS_Kmeans = c(model_kmeans %>% AIC, model_kmeans %>% logLik(), cor(model_kmeans$fitted.values, log(df$price))^2, nrow(df)),
+  
+  Quantile = c(model_quant %>% AIC, model_quant %>% logLik(), cor(model_quant$fitted.values, log(df$price))^2, nrow(df)),
+  
+  Quantile_Kmenas = c(model_quant_kmean %>% AIC, model_quant_kmean %>% logLik(), cor(model_quant_kmean$fitted.values, log(df$price))^2, nrow(df)),
+  
+  Spatial.Error = c(spatial.err %>% AIC, spatial.err %>% logLik(), cor(spatial.err$fitted.values, log(df$price))^2, nrow(df)),
+  
+  Spatial.Lag = c(spatial.lag %>% AIC, spatial.lag %>% logLik(), cor(spatial.lag$fitted.values, log(df$price))^2, nrow(df)),
+  
+  row.names = c("AIC", "Log-like.", "R", "n")
+) %>% 
+  round(3) %>%
+  #stargazer(type = "text", summary = F, title = "Metriky modelu", flip = F)
+  kable() %>%
+  kable_styling(bootstrap_options = "striped", full_width = F)
+```
+
+Vydíme, že všechny hodnoty užitých metrik jsou nejlepší pro $\textit{Spatial Error model}$, který tedy využijeme pro statistickou inferenci. Výhodou modelu $\textit{Spatial Error}$ je skutečnost, že koeficienty lze také přímo interpretovat jako mezní efekty.
+
+
+### Rezidua a predikce všech modelů {.tabset .tabset-fade} 
+
+#### Skutečné a predikované hodnoty
+```{r}
+OLS <- data.frame(
+  fitted = model$fitted.values,
+  residuals = model$residuals
+) %>% mutate(
+  actual = fitted + residuals, 
+  model = "OLS"
+) %>% 
+  select(actual, model, fitted, residuals)
+
+Quant_Req <- data.frame(
+  fitted = model_quant$fitted.values,
+  residuals = model_quant$residuals
+) %>% mutate(
+  actual = fitted + residuals, 
+  model = "Quantile"
+) %>% 
+  select(actual, model, fitted, residuals)
+
+Spatial_error <- data.frame(
+  fitted = spatial.err$fitted.values,
+  residuals = spatial.err$residuals
+) %>% mutate(
+  actual = fitted + residuals, 
+  model = "Spatial Error"
+) %>% 
+  select(actual, model, fitted, residuals)
+
+Spatial_Lag <- data.frame(
+  fitted = spatial.lag$fitted.values,
+  residuals = spatial.lag$residuals
+) %>% mutate(
+  actual = fitted + residuals, 
+  model = "Spatial Lag"
+) %>% 
+  select(actual, model, fitted, residuals)
+
+complete_diag = rbind(OLS, Quant_Req, Spatial_error, Spatial_Lag)
+complete_diag <- complete_diag %>% arrange(residuals) %>% tail(11920)
+
+
+ggplot(complete_diag, aes(x = actual, y = fitted)) + 
+  geom_point(aes(colour = residuals), size = 2, alpha = 1) + 
+  facet_wrap(model~.) +
+  geom_abline(intercept = 0, slope = 1, size = 1, colour = "#FC4E07") + 
+  my_theme + 
+  ggtitle("Porovnání Predikèní schopnosti modelù") + 
+  theme(legend.justification=c(0, 1), legend.position=c(0.05, 0.95),
+        legend.text=element_text(size=7), legend.title=element_text(size=7),
+        legend.key.size = unit(0.6, "cm"),
+        legend.box.background = element_rect(colour = "black", size = 0.75)
+  ) 
+```
+
+#### Histogram reziduí
+```{r}
+ggplot(complete_diag, aes(x = residuals)) + 
+  geom_histogram(bins = 25, color = "#FC4E07", fill = "#00AFBB") + 
+  #scale_fill_brewer() +
+  facet_wrap(model~.) +
+  my_theme +
+  ggtitle("Porovnání Predikèní schopnosti modelù") + 
+  theme(legend.justification=c(0, 1), legend.position=c(0.05, 0.95),
+        legend.text=element_text(size=7), legend.title=element_text(size=7),
+        legend.key.size = unit(0.6, "cm"),
+        legend.box.background = element_rect(colour = "black", size = 0.75)
+  ) 
+```
+
+#### Rezidua v prostoru (Honosné Clustery)
+OLS model není zcela kvalitní na oceňování nemovitostí na pražském trhu, neboť nebere v potaz prostorové závislosti. Nicménně rezidua modelu mohou resp. jejich rozmístění může představovat zajímavý indetifikátor.
+
+
+Nejdřívě spočítame procentuální chyby predikce pro každé pozorování a následně dle intervalů hodnoty diskretizujeme.
+
+Při pohledu na graf níže vidíme, že nemovistosti vyskytující se v historickém centru Prahy (Staroměstské náměstí a přilehlé okolí)
+
+Ceny nemovistostí jsou zde více jak dvojnásobné (více jak 100% rozdíl predikce) čistě z důvodů výskytů nemovistostí v historické části. Abychom tuto nevyrovnanost v reziduích odstranili, bylo by nutné každé nemovisotsti v tomto centru přidat novu kontrolní proměnnou $\textit{Historické centru}$, která by nabývala hodnoty 1, pro nemovitosti v $\textit{Honosném Clusteru}$. Užití modelů bez prostorové závislosti nám umožnuje takovéto clustery identifikovat.
+```{r}
+
+
+
+d = 
+  data.frame(model$fitted.values, df$price) %>% 
+  mutate(df.price = df.price,
+         model.fitted.values = exp(model.fitted.values),
+         pred_res = ((abs(model.fitted.values - df.price))/model.fitted.values)) %>% 
+  select(pred_res)
+
+d$res_coded<-replace(d$res_coded,d$pred_res>=0,6)
+d$res_coded<-replace(d$res_coded,d$pred_res>=0.05,5)
+d$res_coded<-replace(d$res_coded,d$pred_res>=0.15,4)
+d$res_coded<-replace(d$res_coded,d$pred_res>=0.25,3)
+d$res_coded<-replace(d$res_coded,d$pred_res>=0.5,2)
+d$res_coded<-replace(d$res_coded,d$pred_res>=.75,1)
+d$res_coded<-replace(d$res_coded,d$pred_res>=1,0)
+
+
+
+ggmap(ggMapPrague) + 
+
+   geom_point(data = df, aes(x = CORD[ ,1], y = CORD[ ,2], color = factor(d$res_coded)),
+              size = 0.6, alpha = 0.70) +
+
+  theme(legend.justification=c(0, 1), legend.position=c(0.05, 0.95),
+        legend.text=element_text(size=7), legend.title=element_text(size=7),
+        legend.key.size = unit(0.2, "cm"),
+        axis.text.x=element_blank(),
+        axis.ticks.x=element_blank(),
+        axis.text.y=element_blank(),
+        axis.ticks.y=element_blank(),
+        legend.box.background = element_rect(colour = "black", size = 0.05)
+        ) +
+  xlab(" ") + 
+  ylab(" ") + 
+  scale_color_brewer(palette="RdYlGn",name="Residua (%)",labels = c("[100;+inf)","[75;100)","[50;75)","[25;50)","[15;25)","[5;15)", "[0;5)")) + 
+  ggtitle("Shluková Analýza Reziduí") + 
+  guides(fill = guide_legend(override.aes = list(alpha = 1))) 
+
+```
+
+Na Druhé straně pokud modelujume prostorovu závislost a dovolíme sousedním hodnotám $\textit{„Vzájemné ovlivňování“}$ vydíme, že výrazný historický shluk v historickém centru Prahy vymizí.
+```{r}
+
+
+d = 
+  data.frame(spatial.err$fitted.values, df$price) %>% 
+  mutate(df.price = df.price,
+         model.fitted.values = exp(spatial.err.fitted.values),
+         pred_res = ((abs(model.fitted.values - df.price))/model.fitted.values)) %>% 
+  select(pred_res)
+
+d$res_coded<-replace(d$res_coded,d$pred_res>=0,6)
+d$res_coded<-replace(d$res_coded,d$pred_res>=0.05,5)
+d$res_coded<-replace(d$res_coded,d$pred_res>=0.15,4)
+d$res_coded<-replace(d$res_coded,d$pred_res>=0.25,3)
+d$res_coded<-replace(d$res_coded,d$pred_res>=0.5,2)
+d$res_coded<-replace(d$res_coded,d$pred_res>=.75,1)
+d$res_coded<-replace(d$res_coded,d$pred_res>=1,0)
+
+
+
+ggmap(ggMapPrague) + 
+
+   geom_point(data = df, aes(x = CORD[ ,1], y = CORD[ ,2], color = factor(d$res_coded)),
+              size = 0.6, alpha = 0.70) +
+
+  theme(legend.justification=c(0, 1), legend.position=c(0.05, 0.95),
+        legend.text=element_text(size=7), legend.title=element_text(size=7),
+        legend.key.size = unit(0.2, "cm"),
+        axis.text.x=element_blank(),
+        axis.ticks.x=element_blank(),
+        axis.text.y=element_blank(),
+        axis.ticks.y=element_blank(),
+        legend.box.background = element_rect(colour = "black", size = 0.05)
+        ) +
+  xlab(" ") + 
+  ylab(" ") + 
+  scale_color_brewer(palette="RdYlGn",name="Residua (%)",labels = c("[100;+inf)","[75;100)","[50;75)","[25;50)","[15;25)","[5;15)", "[0;5)")) + 
+  ggtitle("Shluková Analýza Reziduí") + 
+  guides(fill = guide_legend(override.aes = list(alpha = 1))) 
+```
+
+# Závěrem
+
+V tétu studiu jsme modelovaly ceny Pražských bytů. Uvažujeme že cena nemovistosti není dána pouze dílčími charakteristikami jako např. $\textit{velikost, počet pokojů}$, ale zárověň také funkce lokality. Z tohoto důvodu využíváme prostorové modely.
+
+Nyní k zhodnocení stanovených hypotéz: 
+
+$$H_{1}: \textit{Z důvodu prostorové autokorelace disponují prostorové modely lepší predikční schopnosti.}$$
+
+Jak na základě $\textit{Prostorového clusterování (OLS_Kmean)}$ tak také užitím $\textit{Moranova testu}$ a také na základě užitých metrik$\textit{AIC, log-likel}$, $R_{pse.}$ se naše hypotéza potvrzuje. 
+
+$$H_{2}: \textit{Historické centrum prahy představuje hlavní „honosný“ cluster.}$$
+Pokud nahlédneme na rezidua v prostoru z OLS modelu vidíme a výše popisujeme výrazný $\textit{prostorový shluk}$ viz. výše., tedy I tuto stanovenou hypotézu v závěru potvrzujeme
+
+$$H_{3}: \textit{Novostavba výrazně zvýší cenu}$$
+V vyhodnocení této hypotézy a statistické inference využijeme $\textit{Spatial Error modelu}$, kter7 se jeví jako nejsilnější. 
+
+proměnná $\textit{Novostavba}$ vychazí statisticky signifikantní (i na 1% hladinně) a nabývá hodnoty 0.076, tedy předpokládáme, že pokud se jedná o novostavbu bude cenna vyšší zhruba o 7.5 %.
