@@ -238,7 +238,7 @@ Z výstupu výše vidíme, že proměnné, které zachycují umístění nemovis
 Pro oveření stability koeficientů pro určité kvantily můžeme nahlédnout na podobnost odhadů mezi metodu nejmenších čtverců a kvantilovou regresí:
 
 ```{r}
-gg_quant_sensitivyti <- function(lm_model, quant_models, ncol = 2) {
+gg_quant_sensitivyti <- function(lm_model, quant_models, ncol = 4) {
   
 A <- quant_models %>% broom::tidy(se  ="boot")
 B <- lm_model %>% broom::tidy()
@@ -259,7 +259,7 @@ left_join(A, B, by = "term") %>%
 
 model_quant_10 <- rq(formula, data = df, tau = 1:9/10)
   
-gg_quant_sensitivyti(model, model_quant_10)
+gg_quant_sensitivyti(model, model_quant_10) +
   my_theme +
   ggtitle("Porovnání OLS a kvantilové regrese")
 ```
