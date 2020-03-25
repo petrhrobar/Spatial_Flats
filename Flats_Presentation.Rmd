@@ -256,6 +256,7 @@ Pro oveření stability koeficientů pro určité kvantily můžeme nahlédnout 
 
 ```{r}
 gg_quant_sensitivyti <- function(lm_model, quant_models, ncol = 3) {
+
   
   A <- quant_models %>% broom::tidy(se  ="boot")
   B <- lm_model %>% broom::tidy()
@@ -276,8 +277,9 @@ gg_quant_sensitivyti <- function(lm_model, quant_models, ncol = 3) {
 
 model_quant_10 <- rq(formula, data = df, tau = 1:9/10)
 
+
 gg_quant_sensitivyti(model, model_quant_10) + 
-  my_theme +
+   my_theme +
   ggtitle("Porovnání OLS a kvantilové regrese")
 ```
 
