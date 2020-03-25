@@ -77,18 +77,26 @@ lmtest::coeftest(model, VCE.bootstrap)
 #-------------------------------------#
 
 
-rq(data=df, 
-   tau= 1:9/10,
-   formula = formula) %>%
-  broom::tidy(se.type = "boot") %>%
+gg_quant_sensitivyti <- function(lm_model, quant_models, ncol = 2) {
+  
+A <- quant_models %>% broom::tidy(se  ="boot")
+B <- lm_model %>% broom::tidy()
+
+left_join(A, B, by = "term") %>% 
+  #filter(!grepl("factor", term)) %>%   
   #filter(!grepl("Intercept", term)) %>%
-  #filter(!grepl("factor", term)) %>%
-  ggplot(aes(x=tau,y=estimate))+
-  geom_point(color="#27408b", size = 3)+ 
-  geom_line(color="#27408b", size = 1)+ 
-  geom_smooth(method=  "lm", colour = "red", se = T, fill = "red", alpha = 0.15) +  
-  facet_wrap(~term, scales="free", ncol=3) + 
+  ggplot(aes(tau, estimate.x)) + 
+  geom_point(color="#27408b", size = 3) +
+  geom_line(color="#27408b", size = 1)+
+  geom_hline(aes(yintercept = estimate.y), color  = "red") +
+  #geom_hline(aes(yintercept = 0), color  = "black", alpha = 0.6) +
+  geom_hline(aes(yintercept = estimate.y + 1.96*std.error.y), linetype = 2, color = "red", alpha = 0.65)  +
+  geom_hline(aes(yintercept = estimate.y - 1.96*std.error.y), linetype = 2, color = "red", alpha = 0.65)  +
   geom_ribbon(aes(ymin=conf.low,ymax=conf.high),alpha=0.25, fill="#27408b") + 
+  facet_wrap(~term, scales = "free", ncol = ncol)
+}
+
+
   #my_theme +
   ggtitle("Quantile and OLS comparison")
 
