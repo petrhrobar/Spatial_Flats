@@ -1,6 +1,6 @@
 rm(list = ls())
 set.seed(010)
-#Smazeme cele prost≈ôed√≠...
+#Smazeme cele prost¯edÌ...
 
 #-------------------------------------#
 ####### Packages Loading ########
@@ -14,13 +14,16 @@ library(ggmap)
 library(stargazer)
 library(kableExtra)
 library(leaflet)
+library(sf)
+library(ggplot2)
+library(ggspatial)
 
 #-------------------------------------#
 ####### Always set directory ########
 #-------------------------------------#
 
 getwd()
-setwd("C:/Users/petr7/OneDrive/≈†KOLA/PROSTOROV√â BYTY")
+setwd("C:/Users/petr7/OneDrive/äKOLA/PROSTOROV… BYTY")
 
 #-------------------------------------#
 ######### Datasets loading  #########
@@ -61,10 +64,10 @@ model_quant %>% summary(se = "boot")
 rep = 500
 bs.coeffs <- matrix(NA, nrow = rep, ncol = 9)
 for (b in 1:rep) {
-bs.model = lm(formula,
-  data=df,
-  subset=sample(nrow(df), size = nrow(df), replace=TRUE))
-bs.coeffs[b, ] = bs.model$coef
+  bs.model = lm(formula,
+                data=df,
+                subset=sample(nrow(df), size = nrow(df), replace=TRUE))
+  bs.coeffs[b, ] = bs.model$coef
 }
 
 VCE.bootstrap = cov(bs.coeffs)
@@ -77,33 +80,35 @@ lmtest::coeftest(model, VCE.bootstrap)
 #-------------------------------------#
 
 
-gg_quant_sensitivyti <- function(lm_model, quant_models, ncol = 2) {
+gg_quant_sensitivyti <- function(lm_model, quant_models, ncol = 3) {
   
-A <- quant_models %>% broom::tidy(se  ="boot")
-B <- lm_model %>% broom::tidy()
-
-left_join(A, B, by = "term") %>% 
-  #filter(!grepl("factor", term)) %>%   
-  #filter(!grepl("Intercept", term)) %>%
-  ggplot(aes(tau, estimate.x)) + 
-  geom_point(color="#27408b", size = 3) +
-  geom_line(color="#27408b", size = 1)+
-  geom_hline(aes(yintercept = estimate.y), color  = "red") +
-  #geom_hline(aes(yintercept = 0), color  = "black", alpha = 0.6) +
-  geom_hline(aes(yintercept = estimate.y + 1.96*std.error.y), linetype = 2, color = "red", alpha = 0.65)  +
-  geom_hline(aes(yintercept = estimate.y - 1.96*std.error.y), linetype = 2, color = "red", alpha = 0.65)  +
-  geom_ribbon(aes(ymin=conf.low,ymax=conf.high),alpha=0.25, fill="#27408b") + 
-  facet_wrap(~term, scales = "free", ncol = ncol)
+  A <- quant_models %>% broom::tidy(se  ="boot")
+  B <- lm_model %>% broom::tidy()
+  
+  left_join(A, B, by = "term") %>% 
+    #filter(!grepl("factor", term)) %>%   
+    #filter(!grepl("Intercept", term)) %>%
+    ggplot(aes(tau, estimate.x)) + 
+    geom_point(color="#27408b", size = 3) +
+    geom_line(color="#27408b", size = 1)+
+    geom_hline(aes(yintercept = estimate.y), color  = "red") +
+    geom_hline(aes(yintercept = estimate.y + 1.96*std.error.y), linetype = 2, color = "red", alpha = 0.65)  +
+    geom_hline(aes(yintercept = estimate.y - 1.96*std.error.y), linetype = 2, color = "red", alpha = 0.65)  +
+    geom_ribbon(aes(ymin=estimate.y - 1.96*std.error.y,ymax=estimate.y + 1.96*std.error.y),alpha=0.09, fill="red") +
+    geom_ribbon(aes(ymin=conf.low,ymax=conf.high),alpha=0.25, fill="#27408b") + 
+    facet_wrap(~term, scales = "free", ncol = ncol)
 }
 
+model_quant_10 <- rq(formula, data = df, tau = 1:9/10)
 
-  #my_theme +
-  ggtitle("Quantile and OLS comparison")
+gg_quant_sensitivyti(model, model_quant_10) + 
+  my_theme +
+  ggtitle("Porovn·nÌ OLS a kvantilovÈ regrese")
 
 #-------------------------------------#
 ##### Adding small rand. number #####
 #-------------------------------------#
-  
+
 CORD = cbind(df$gps.lon, df$gps.lat)
 CORD[ ,1] %>% unique() %>% length()
 CORD[ ,1] <- CORD[ ,1] + runif(min = -10E-4, max = 10E-4, dim(CORD)[1])
@@ -167,7 +172,7 @@ d %>%
   ggplot(aes(res_coded)) + 
   geom_bar() + 
   geom_vline(xintercept = mean(d$res_coded), color = "red")  + 
-  ggtitle("Sloupcov√Ω graf kategori√≠ rezidu√≠")
+  ggtitle("Sloupcov˝ graf kategoriÌ reziduÌ")
 
 d$res_coded<-factor(d$res_coded)
 
@@ -183,7 +188,7 @@ W <- nb2listw(cns, zero.policy = TRUE)
 plot(W, CORD)
 
 #-------------------------------------#
-  ##### Spatial Models - W_matrix #####
+##### Spatial Models - W_matrix #####
 # NN - matrix
 #-------------------------------------#
 
@@ -222,15 +227,15 @@ plot(W, coordinates(CORD), add = T, col = "red")
 bboxPrague <- c(14.22,49.94,14.71,50.18)
 ggMapPrague <- get_map(location = bboxPrague, source = "osm",maptype = "terrain", crop = TRUE, zoom = 12)
 
- ggmap(ggMapPrague) + 
-   # 
-   # geom_point(data = df, aes(x = CORD[ ,1], y = CORD[ ,2], color = factor(d$res_coded)),
-   #            size = 0.6, alpha = 0.70) +
-   
-  geom_point(data = df, aes(x = CORD[ ,1], y = CORD[ ,2]), color = "black", size = 1) +
-
-  geom_segment(data = DA, aes(xend = long_to, yend = lat_to, x = DA$long, y = DA$lat), size=0.01, color = "red", alpha = 0.75) +
-
+ggmap(ggMapPrague) + 
+  # 
+  geom_point(data = df, aes(x = CORD[ ,1], y = CORD[ ,2], color = factor(d$res_coded)),
+             size = 0.6, alpha = 0.70) +
+  
+  #geom_point(data = df, aes(x = CORD[ ,1], y = CORD[ ,2]), color = "black", size = 1) +
+  
+  #geom_segment(data = DA, aes(xend = long_to, yend = lat_to, x = DA$long, y = DA$lat), size=0.01, color = "red", alpha = 0.75) +
+  
   theme(legend.justification=c(0, 1), legend.position=c(0.05, 0.95),
         legend.text=element_text(size=7), legend.title=element_text(size=7),
         legend.key.size = unit(0.2, "cm"),
@@ -239,28 +244,13 @@ ggMapPrague <- get_map(location = bboxPrague, source = "osm",maptype = "terrain"
         axis.text.y=element_blank(),
         axis.ticks.y=element_blank(),
         legend.box.background = element_rect(colour = "black", size = 0.05)
-        ) +
+  ) +
   xlab(" ") + 
   ylab(" ") + 
   scale_color_brewer(palette="RdYlGn",name="Residua (%)",labels = c("[100;+inf)","[75;100)","[50;75)","[25;50)","[15;25)","[5;15)", "[0;5)")) + 
-  ggtitle("Shlukov√° Anal√Ωza Rezidu√≠") + 
+  ggtitle("Shlukov· Anal˝za ReziduÌ") + 
   guides(fill = guide_legend(override.aes = list(alpha = 1))) 
 
-
-ggsave("NN_7.pdf", height = 7, width = 7)
-
-beatCol <- colorFactor(palette = 'RdYlGn', d$res_coded)
-
-leaflet() %>% 
-  addProviderTiles("CartoDB.Positron") %>% 
-  addCircleMarkers(data = df, lng = df$gps.lon, lat = df$gps.lat, 
-            color = ~beatCol(d$res_coded),       
-            radius = (1 - d$res_coded)*3) %>% 
-  addLegend('bottomright', 
-            pal = beatCol, 
-            values = d$res_coded,
-            opacity = 1, 
-            labels = c("[100;+inf)", "[75;100)", "[50;75)", "[25;50)", "[15;25)", "[5;15)", "[0;5)"))
 
 #-------------------------------------#
 ##### Spatial Autocorr. testing #####
@@ -382,7 +372,7 @@ ggplot(complete_diag, aes(x = actual, y = fitted)) +
   facet_wrap(model~.) +
   geom_abline(intercept = 0, slope = 1, size = 1, colour = "#FC4E07") + 
   my_theme + 
-  ggtitle("Porovn√°n√≠ Predik√®n√≠ schopnosti model√π") + 
+  ggtitle("Porovn·nÌ PredikenÌ schopnosti modelu") + 
   theme(legend.justification=c(0, 1), legend.position=c(0.05, 0.95),
         legend.text=element_text(size=7), legend.title=element_text(size=7),
         legend.key.size = unit(0.6, "cm"),
@@ -399,7 +389,7 @@ ggplot(complete_diag, aes(x = residuals)) +
   #scale_fill_brewer() +
   facet_wrap(model~.) +
   my_theme +
-  ggtitle("Porovn√°n√≠ Predik√®n√≠ schopnosti model√π") + 
+  ggtitle("Porovn·nÌ PredikenÌ schopnosti modelu") + 
   theme(legend.justification=c(0, 1), legend.position=c(0.05, 0.95),
         legend.text=element_text(size=7), legend.title=element_text(size=7),
         legend.key.size = unit(0.6, "cm"),
@@ -417,5 +407,5 @@ capture.output(
   summary(spatial.lag),
   summary(spatial.err),
   
-file = "A.txt"
+  file = "A.txt"
 )
