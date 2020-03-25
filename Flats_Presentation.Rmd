@@ -41,22 +41,39 @@ library(leaflet)
 
 ```{r, echo=F}
 # Téma na ggplot
-my_theme <- 
-  theme_light() + 
-  theme(
-    plot.title = element_text(size = 16, face = "bold"),
-    axis.text = element_text(size = 10),
-    axis.title = element_text(size = 14),
-    axis.title.y = element_text(face = "bold", size = 12),
-    axis.title.x = element_text(face = "bold", size = 12),
-    legend.text = element_text(size = 10),
-    legend.title = element_text(size = 12),
+# my_theme <- 
+#   theme_light() + 
+#   theme(
+#     plot.title = element_text(size = 16, face = "bold"),
+#     axis.text = element_text(size = 10),
+#     axis.title = element_text(size = 14),
+#     axis.title.y = element_text(face = "bold", size = 12),
+#     axis.title.x = element_text(face = "bold", size = 12),
+#     legend.text = element_text(size = 10),
+#     legend.title = element_text(size = 12),
+#     panel.border = element_rect(colour = "gray35", fill=NA, size= 1.7),
+#     panel.grid.major = element_line(colour = "lightgrey"),
+#     legend.position = "bottom",
+#     legend.direction = "vertical",
+#     strip.background = element_rect(fill = "gray91", color =  "black"),
+#     strip.text = element_text(color = "black"))
+
+ my_theme <- 
+   theme_light() + 
+    theme(
+    plot.title = element_text(size = 16, face = "bold", family = "serif"),
+    axis.text = element_text(size = 12, family="serif"),
+    axis.title = element_text(size = 14, family="serif"),
+    axis.title.y = element_text(face = "bold", size = 12, family="serif"),
+    axis.title.x = element_text(face = "bold", size = 12, family="serif"),
+    legend.text = element_text(size = 10, family="serif"),
+    legend.title = element_text(size = 12, family="serif"),
     panel.border = element_rect(colour = "gray35", fill=NA, size= 1.7),
     panel.grid.major = element_line(colour = "lightgrey"),
     legend.position = "bottom",
     legend.direction = "vertical",
     strip.background = element_rect(fill = "gray91", color =  "black"),
-    strip.text = element_text(color = "black"))
+    strip.text = element_text(color = "black", size = 12.5, family = "serif"))
 ```
 
 # Úvod
@@ -238,29 +255,31 @@ Z výstupu výše vidíme, že proměnné, které zachycují umístění nemovis
 Pro oveření stability koeficientů pro určité kvantily můžeme nahlédnout na podobnost odhadů mezi metodu nejmenších čtverců a kvantilovou regresí:
 
 ```{r}
-gg_quant_sensitivyti <- function(lm_model, quant_models, ncol = 4) {
-  
-A <- quant_models %>% broom::tidy(se  ="boot")
-B <- lm_model %>% broom::tidy()
+gg_quant_sensitivyti <- function(lm_model, quant_models, ncol = 3) {
 
-left_join(A, B, by = "term") %>% 
-  #filter(!grepl("factor", term)) %>%   
-  #filter(!grepl("Intercept", term)) %>%
-  ggplot(aes(tau, estimate.x)) + 
-  geom_point(color="#27408b", size = 3) +
-  geom_line(color="#27408b", size = 1)+
-  geom_hline(aes(yintercept = estimate.y), color  = "red") +
-  #geom_hline(aes(yintercept = 0), color  = "black", alpha = 0.6) +
-  geom_hline(aes(yintercept = estimate.y + 1.96*std.error.y), linetype = 2, color = "red", alpha = 0.65)  +
-  geom_hline(aes(yintercept = estimate.y - 1.96*std.error.y), linetype = 2, color = "red", alpha = 0.65)  +
-  geom_ribbon(aes(ymin=conf.low,ymax=conf.high),alpha=0.25, fill="#27408b") + 
-  facet_wrap(~term, scales = "free", ncol = ncol)
+  
+  A <- quant_models %>% broom::tidy(se  ="boot")
+  B <- lm_model %>% broom::tidy()
+  
+  left_join(A, B, by = "term") %>% 
+    #filter(!grepl("factor", term)) %>%   
+    #filter(!grepl("Intercept", term)) %>%
+    ggplot(aes(tau, estimate.x)) + 
+    geom_point(color="#27408b", size = 3) +
+    geom_line(color="#27408b", size = 1)+
+    geom_hline(aes(yintercept = estimate.y), color  = "red") +
+    geom_hline(aes(yintercept = estimate.y + 1.96*std.error.y), linetype = 2, color = "red", alpha = 0.65)  +
+    geom_hline(aes(yintercept = estimate.y - 1.96*std.error.y), linetype = 2, color = "red", alpha = 0.65)  +
+    geom_ribbon(aes(ymin=estimate.y - 1.96*std.error.y,ymax=estimate.y + 1.96*std.error.y),alpha=0.09, fill="red") +
+    geom_ribbon(aes(ymin=conf.low,ymax=conf.high),alpha=0.25, fill="#27408b") + 
+    facet_wrap(~term, scales = "free", ncol = ncol)
 }
 
 model_quant_10 <- rq(formula, data = df, tau = 1:9/10)
-  
-gg_quant_sensitivyti(model, model_quant_10) +
-  my_theme +
+
+
+gg_quant_sensitivyti(model, model_quant_10) + 
+   my_theme +
   ggtitle("Porovnání OLS a kvantilové regrese")
 ```
 
