@@ -167,7 +167,7 @@ CORD[ ,2] <- CORD[ ,2] + runif(min = -10E-4, max = 10E-4, dim(CORD)[1])
 bboxPrague <- c(14.22,49.94,14.71,50.18)
 ggMapPrague <- get_map(location = bboxPrague, source = "osm",maptype = "terrain", crop = TRUE, zoom = 12)
 
-ggmap(ggMapPrague) + 
+  ggmap(ggMapPrague) + 
   geom_point(data = df, aes(x = CORD[ ,1], y = CORD[ ,2]), color = "black", size = 0.75, alpha = 0.7) + 
     theme(legend.justification=c(0, 1), legend.position=c(0.05, 0.95),
         legend.text=element_text(size=7), legend.title=element_text(size=7),
@@ -185,7 +185,7 @@ ggmap(ggMapPrague) +
 
 Abychom částěčně vzali vpotaz prostorovu závislost (Krom. prostorových modelů), lze využít proměnné $\textit{longitude, latitude}$ a zařadit je do regresního modelu.
 
-Jelikož jsou obě proměnné ale nevhodně spojité využijeme Clusterovací algoritmus, který přiřadí každou proměnou do určité kategorie, to modelu bude následně vstupovat $\textit{dummy}$ hodnota tohoto clusteru, pokud bude vycházet statisticky významný, lze považovat prostorové modely za vhodný postup.
+Jelikož jsou obě proměnné ale nevhodně spojité využijeme Clusterovací algoritmus $\textit{K-means}$, který přiřadí každé pozorování do určité kategorie, to modelu bude následně vstupovat $\textit{dummy}$ hodnota tohoto clusteru, pokud bude vycházet statisticky významný, lze považovat prostorovou závislost ze velmi silnou a volíme modely prostorové metodologie.
 
 
 ```{r}
@@ -196,7 +196,7 @@ MAPA <- df %>% select(gps.lon, gps.lat, KMEAN)
 colnames(MAPA) = c("x", "y", "v")
 
 ggmap(ggMapPrague) + 
-  geom_point(data = MAPA, aes(x = x, y = y, color = factor(v)), size = 0.7) + 
+  geom_point(data = MAPA, aes(x = x, y = y, color = factor(v)), size = 1.3) + 
     stat_ellipse(data= MAPA, aes(x=x, y=y, fill=factor(v)),
                geom="polygon", level=0.95, alpha=0.25) + 
   theme(legend.position = "none", 
@@ -207,6 +207,7 @@ ggmap(ggMapPrague) +
   ylab(" ") + 
   xlab(" ") + 
   ggtitle("Clusterování lokalit pražských bytů")
+
 
 ```
 
@@ -221,6 +222,7 @@ $$\textit{log(cena)} = \beta_{0} +  \beta_{1}pokoje  + \beta_{2}pokoje^{2} + \be
 
 
 Model budeme odhadovat několika metodymi: $\textit{OLS, Kvantilová regrese}$ a prostorové modely: $\textit{spatial lag, spatial error model}$.
+ 
 
 ```{r, results='asis'}
 formula <- as.formula(log(price) ~ Rooms + Meters + I(Rooms^2) + Mezone + KK + panel + balcony_or_terrase + novostavba)
@@ -246,17 +248,18 @@ stargazer(model, model_kmeans, model_quant, model_quant_kmean,
                           "Quant reg. - Kmeans"),
           omit.stat = c("rsq", "f")
           )
+
+
 ```
 
 
-
+\
 Z výstupu výše vidíme, že proměnné, které zachycují umístění nemovistosti v konkrétním clusteru jsou statisticky významné (formálně musíme provádět testy hokoskedasticity, ale i v případě robustních odhadů vychazí signifikantní).
 
 Pro oveření stability koeficientů pro určité kvantily můžeme nahlédnout na podobnost odhadů mezi metodu nejmenších čtverců a kvantilovou regresí:
 
 ```{r}
 gg_quant_sensitivyti <- function(lm_model, quant_models, ncol = 3) {
-
   
   A <- quant_models %>% broom::tidy(se  ="boot")
   B <- lm_model %>% broom::tidy()
@@ -277,9 +280,8 @@ gg_quant_sensitivyti <- function(lm_model, quant_models, ncol = 3) {
 
 model_quant_10 <- rq(formula, data = df, tau = 1:9/10)
 
-
 gg_quant_sensitivyti(model, model_quant_10) + 
-   my_theme +
+  my_theme +
   ggtitle("Porovnání OLS a kvantilové regrese")
 ```
 
@@ -527,7 +529,7 @@ d$res_coded<-replace(d$res_coded,d$pred_res>=1,0)
 ggmap(ggMapPrague) + 
 
    geom_point(data = df, aes(x = CORD[ ,1], y = CORD[ ,2], color = factor(d$res_coded)),
-              size = 0.6, alpha = 0.70) +
+              size = 2, alpha = 0.70) +
 
   theme(legend.justification=c(0, 1), legend.position=c(0.05, 0.95),
         legend.text=element_text(size=7), legend.title=element_text(size=7),
@@ -570,7 +572,7 @@ d$res_coded<-replace(d$res_coded,d$pred_res>=1,0)
 ggmap(ggMapPrague) + 
 
    geom_point(data = df, aes(x = CORD[ ,1], y = CORD[ ,2], color = factor(d$res_coded)),
-              size = 0.6, alpha = 0.70) +
+              size = 2, alpha = 0.70) +
 
   theme(legend.justification=c(0, 1), legend.position=c(0.05, 0.95),
         legend.text=element_text(size=7), legend.title=element_text(size=7),
