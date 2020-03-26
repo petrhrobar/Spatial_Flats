@@ -294,7 +294,7 @@ Jelikož jsme prokázali významný faktor umístění nemovistosti, dle statist
 
 V prostorových modelech je nezbytné nadefinovat si $\textit{Matici sousednosti W}$, která identifikuje, které jednotky považujeme za sousední a které již nikoliv:
 
-Níže nahlédněme na několik způsobů generování vztahů sousednosti
+Níže nahlédněme na několik způsobů generování vztahů sousednosti. Níže vidíme výsledky $\textit{Moranova I}$ testů, které potvrzují přítomnost prostorové autokorelace pro všechny námi testované relace sousednosti.
 
 #### Maximální počtu sousedů (4 jednotky):
 ```{r}
@@ -380,6 +380,20 @@ colnames(moran) = c("I-Statistic", "Variance", "p-value")
 
 
 ### Modely Prostorové ekonometrie Spatial Lag, Spatial Error
+
+V této práci využijeme 2 základní modely prostorové ekonometrie, které definujeme následovně:
+
+$\textit{Spatial Lag model}$ má následující podobu:
+
+$$y = \rho Wy  + X \beta + \varepsilon$$
+
+ve které provádíme kontrolu prostorové autokorelace skrze vysvětlující proměnné.
+
+Druhý $\textit{Spatial Error model}$ má předpis:
+
+$$y = X\beta + u,$$
+$$u = \lambda W\varepsilon + \epsilon$$
+
 ```{r}
 cns <- knearneigh(CORD, k=7, longlat=T) 
 scnsn <- knn2nb(cns, row.names = NULL, sym = T) 
