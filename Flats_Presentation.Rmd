@@ -216,16 +216,16 @@ ggmap(ggMapPrague) +
 Pro oveření našich stanovených hypotéz je nezbytné sestavit konkrétní model, který budeme odhadovat. 
 
 Formálně využijeme model, který má následující tvar:
-formula <- as.formula(log(price) ~ Rooms + Meters + I(Rooms^2) + Mezone + KK + panel + balcony_or_terrase + novostavba)
 
-$$\textit{log(cena)} = \beta_{0} +  \beta_{1}pokoje  + \beta_{2}pokoje^{2} + \beta_{3}metry -čtver.+ \beta_{4}mezon + \beta_{5}kk + + \beta_{6}panel + \beta_{7}terasa/balkon + \beta_{8}novostavba + \epsilon.$$
+
+$$\textit{log(cena)} = \beta_{0} +  \beta_{1}pokoje  + \beta_{2}log(metry) + \beta_{3}mezon + \beta_{4}kk + \beta_{5}panel + \beta_{6}terasa/balkon + \beta_{7}novostavba + \varepsilon.$$
 
 
 Model budeme odhadovat několika metodymi: $\textit{OLS, Kvantilová regrese}$ a prostorové modely: $\textit{spatial lag, spatial error model}$.
  
 
 ```{r, results='asis'}
-formula <- as.formula(log(price) ~ Rooms + Meters + I(Rooms^2) + Mezone + KK + panel + balcony_or_terrase + novostavba)
+formula <- as.formula(log(price) ~ Rooms + log(Meters)  + Mezone + KK + panel + balcony_or_terrase + novostavba)
 
 
 model <- lm(formula, data = df)
@@ -236,15 +236,15 @@ model_quant <- rq(formula, data = df)
 KME <- kmeans(CORD, 5)
 df$KMEAN = KME$cluster
 
-model_kmeans <- lm(log(price) ~ Rooms + Meters + I(Rooms^2) + Mezone + KK + panel + balcony_or_terrase + novostavba + factor(KMEAN), df)
+model_kmeans <- lm(log(price) ~ Rooms + log(Meters)  + Mezone + KK + panel + balcony_or_terrase + novostavba + factor(KMEAN), df)
 
-model_quant_kmean <- rq(log(price) ~ Rooms + Meters + I(Rooms^2) + Mezone + KK + panel + balcony_or_terrase + novostavba + factor(KMEAN), data = df)
+model_quant_kmean <- rq(log(price) ~ Rooms + log(Meters)  + Mezone + KK + panel + balcony_or_terrase + novostavba + factor(KMEAN), data = df)
 
 stargazer(model, model_kmeans, model_quant, model_quant_kmean,
           type="html", 
           column.labels=c("OLS",
-                          "Quant reg.",
                           "OLS - kmeans",
+                          "Quant reg.",
                           "Quant reg. - Kmeans"),
           omit.stat = c("rsq", "f")
           )
@@ -392,7 +392,7 @@ ve které provádíme kontrolu prostorové autokorelace skrze vysvětlující pr
 Druhý $\textit{Spatial Error model}$ má předpis:
 
 $$y = X\beta + u,$$
-$$u = \lambda W\varepsilon + \epsilon$$
+$$u = \lambda Wu + \varepsilon$$
 
 ```{r}
 cns <- knearneigh(CORD, k=7, longlat=T) 
@@ -620,4 +620,14 @@ Pokud nahlédneme na rezidua v prostoru z OLS modelu vidíme a výše popisujeme
 $$H_{3}: \textit{Novostavba výrazně zvýší cenu}$$
 V vyhodnocení této hypotézy a statistické inference využijeme $\textit{Spatial Error modelu}$, kter7 se jeví jako nejsilnější. 
 
-proměnná $\textit{Novostavba}$ vychazí statisticky signifikantní (i na 1% hladinně) a nabývá hodnoty 0.076, tedy předpokládáme, že pokud se jedná o novostavbu bude cenna vyšší zhruba o 7.5 %.
+
+proměnná $\textit{Novostavba}$ vychazí statisticky signifikantní (i na 1% hladinně) a nabývá hodnoty `r spatial.err$coefficients %>% tail(1)`, tedy předpokládáme, že pokud se jedná o novostavbu bude cenna vyšší zhruba o `r 100*spatial.err$coefficients %>% tail(1)` %.
+
+
+
+```{r}
+moran.test(model$residuals, W)
+lm.morantest(model, W)
+moran.test(spatial.err$residuals, W)
+```
+
