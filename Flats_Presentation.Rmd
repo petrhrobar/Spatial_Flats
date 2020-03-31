@@ -414,18 +414,25 @@ Využijeme následující metriky: $\textit{AIC, log-likel}$ a $R_{pse}$. Posled
 $$R_{pse.} = corr(y, \hat y)^2$$,
 využití této metriky nám uvožní zachytit predikční shcopnosti každého modelu.
 ```{r}
+
 data.frame(
-  OLS = c(model %>% AIC, model %>% logLik(), cor(model$fitted.values, log(df$price))^2, nrow(df)),
+  OLS = c(model %>% AIC, model %>% logLik(), cor(model$fitted.values, log(df$price))^2,
+          nrow(df)),
   
-  OLS_Kmeans = c(model_kmeans %>% AIC, model_kmeans %>% logLik(), cor(model_kmeans$fitted.values, log(df$price))^2, nrow(df)),
+  OLS_Kmeans = c(model_kmeans %>% AIC, model_kmeans %>% logLik(), cor(model_kmeans$fitted.values, log(df$price))^2,
+                 nrow(df)),
   
-  Quantile = c(model_quant %>% AIC, model_quant %>% logLik(), cor(model_quant$fitted.values, log(df$price))^2, nrow(df)),
+  Quantile = c(model_quant %>% AIC, model_quant %>% logLik(), cor(model_quant$fitted.values, log(df$price))^2,
+               nrow(df)),
   
-  Quantile_Kmenas = c(model_quant_kmean %>% AIC, model_quant_kmean %>% logLik(), cor(model_quant_kmean$fitted.values, log(df$price))^2, nrow(df)),
+  Quantile_Kmeans = c(model_quant_kmean %>% AIC, model_quant_kmean %>% logLik(), cor(model_quant_kmean$fitted.values, log(df$price))^2, 
+                      nrow(df)),
   
-  Spatial.Error = c(spatial.err %>% AIC, spatial.err %>% logLik(), cor(spatial.err$fitted.values, log(df$price))^2, nrow(df)),
+  Spatial.Error = c(spatial.err %>% AIC, spatial.err %>% logLik(), cor(spatial.err$fitted.values, log(df$price))^2,
+                    nrow(df)),
   
-  Spatial.Lag = c(spatial.lag %>% AIC, spatial.lag %>% logLik(), cor(spatial.lag$fitted.values, log(df$price))^2, nrow(df)),
+  Spatial.Lag = c(spatial.lag %>% AIC, spatial.lag %>% logLik(), cor(spatial.lag$fitted.values, log(df$price))^2,
+                  nrow(df)),
   
   row.names = c("AIC", "Log-like.", "R", "n")
 ) %>% 
@@ -621,7 +628,7 @@ $$H_{3}: \textit{Novostavba výrazně zvýší cenu}$$
 V vyhodnocení této hypotézy a statistické inference využijeme $\textit{Spatial Error modelu}$, kter7 se jeví jako nejsilnější. 
 
 
-proměnná $\textit{Novostavba}$ vychazí statisticky signifikantní (i na 1% hladinně) a nabývá hodnoty `r spatial.err$coefficients %>% tail(1)`, tedy předpokládáme, že pokud se jedná o novostavbu bude cenna vyšší zhruba o `r 100*spatial.err$coefficients %>% tail(1)` %.
+proměnná $\textit{Novostavba}$ vychazí statisticky signifikantní (i na 1% hladinně) a nabývá hodnoty `r spatial.err$coefficients %>% tail(1)`, tedy předpokládáme, že pokud se jedná o novostavbu bude cenna vyšší zhruba o `r 100*spatial.err$coefficients %>% tail(1) %>% round(3)` %.
 
 
 
