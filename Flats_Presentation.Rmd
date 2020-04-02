@@ -631,10 +631,3 @@ V vyhodnocení této hypotézy a statistické inference využijeme $\textit{Spat
 proměnná $\textit{Novostavba}$ vychazí statisticky signifikantní (i na 1% hladinně) a nabývá hodnoty `r spatial.err$coefficients %>% tail(1)`, tedy předpokládáme, že pokud se jedná o novostavbu bude cenna vyšší zhruba o `r 100*spatial.err$coefficients %>% tail(1) %>% round(3)` %.
 
 
-
-```{r}
-moran.test(model$residuals, W)
-lm.morantest(model, W)
-moran.test(spatial.err$residuals, W)
-```
-
