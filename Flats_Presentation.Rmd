@@ -1,5 +1,5 @@
 ---
-title: "Prostorové modely na přažském trhu nemovitostí"
+title: "Prostorové modely na přažském trhu nemovitostí - GITHUB KONTROLA"
 author: Petr Hrobař
 output:
   html_document:
