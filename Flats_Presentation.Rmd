@@ -1,5 +1,5 @@
 ---
-title: "Prostorové modely na přažském trhu nemovitostí - TAKHLE SE TO PREPISE"
+title: "Prostorové modely na Pražském trhu nemovitostí"
 author: Petr Hrobař
 output:
   html_document:
