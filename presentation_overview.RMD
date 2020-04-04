@@ -1,0 +1,20 @@
+---
+title: "Spatial Model - Flat Market of Prague"
+author: Petr Hrobař
+output:
+  github_document:
+  fig_caption: yes
+fig_height: 8
+fig_width: 10
+highlight: pygments
+message: no
+number_sections: yes
+warnings: no
+editor_options: 
+  chunk_output_type: console
+---
+
+In this study we apply ***Spatial Econometrics models*** and evaluate flats prices. We suppose that **price** of the flat is not only the function of flat's own characteristics but also function of its neighbourhood characteristics.
+
+* Firstly we test for spatial dependency
+* Then applying spatial models
