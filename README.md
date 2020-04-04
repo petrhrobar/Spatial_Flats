@@ -9,3 +9,6 @@ neighbourhood characteristics.
 
   - Firstly we test for spatial dependency
   - Then applying spatial models
+
+Data Distribution:
+![](README_files/figure-gfm/unnamed-chunk-1-1.png)<!-- -->

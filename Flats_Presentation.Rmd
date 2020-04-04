@@ -114,7 +114,7 @@ Nakonec bylo nezbytné odstranit všechna pozorování, která obsahovala chybě
 
 #### Základní statistiky proměnných
 ```{r}
-setwd("C:/Users/petr7/OneDrive/ŠKOLA/PROSTOROVÉ BYTY")
+#setwd("C:/Users/petr7/OneDrive/ŠKOLA/PROSTOROVÉ BYTY")
 
 #-------------------------------------#
 ######### Datasets loading  #########
