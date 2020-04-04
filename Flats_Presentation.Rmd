@@ -1,5 +1,5 @@
 ---
-title: "Prostorové modely na přažském trhu nemovitostí"
+title: "Prostorové modely na Pražském trhu nemovitostí - SEM PISI SI"
 author: Petr Hrobař
 output:
   html_document:
