@@ -1,0 +1,20 @@
+[1] "POUZITE MODELY METRIKY KOD STARGAZEU"
+[1] "=============================="
+
+% Table created by stargazer v.5.2.2 by Marek Hlavac, Harvard University. E-mail: hlavac at fas.harvard.edu
+% Date and time: ne, dub 05, 2020 - 11:37:44
+\begin{table}[!htbp] \centering 
+  \caption{Metriky modelu} 
+  \label{} 
+\begin{tabular}{@{\extracolsep{5pt}} ccccccc} 
+\\[-1.8ex]\hline 
+\hline \\[-1.8ex] 
+ & OLS & OLS\_Kmeans & Quantile & Quantile\_Kmeans & Spatial.Error & Spatial.Lag \\ 
+\hline \\[-1.8ex] 
+AIC & $583.827$ & $157.922$ & $29.727$ & $$-$341.581$ & $$-$749.319$ & $$-$414.821$ \\ 
+Log-like. & $$-$282.913$ & $$-$65.961$ & $$-$6.863$ & $182.790$ & $384.660$ & $217.410$ \\ 
+R & $0.748$ & $0.782$ & $0.748$ & $0.781$ & $0.857$ & $0.825$ \\ 
+n & $2,984$ & $2,984$ & $2,984$ & $2,984$ & $2,984$ & $2,984$ \\ 
+\hline \\[-1.8ex] 
+\end{tabular} 
+\end{table} 
