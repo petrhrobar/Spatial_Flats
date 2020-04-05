@@ -1,0 +1,17 @@
+[1] "MORAN TEST 5 NN"
+[1] "=============================="
+
+% Table created by stargazer v.5.2.2 by Marek Hlavac, Harvard University. E-mail: hlavac at fas.harvard.edu
+% Date and time: ne, dub 05, 2020 - 10:59:46
+\begin{table}[!htbp] \centering 
+  \caption{Moran Test 5-NN} 
+  \label{} 
+\begin{tabular}{@{\extracolsep{5pt}} cccc} 
+\\[-1.8ex]\hline 
+\hline \\[-1.8ex] 
+ & I Statistic & Variance & p-value \\ 
+\hline \\[-1.8ex] 
+  & $0.413$ & $0.0001$ & $0$ \\ 
+\hline \\[-1.8ex] 
+\end{tabular} 
+\end{table} 
