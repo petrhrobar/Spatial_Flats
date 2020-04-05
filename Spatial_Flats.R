@@ -7,6 +7,9 @@ library(spdep)
 library(ggmap)
 library(stargazer)
 library(leaflet)
+library(grid)
+library(gridExtra)
+
 
 my_theme <- 
   theme_light() + 
@@ -60,7 +63,8 @@ s2.df <- data.frame(NN= 0,
                     )
 
 
-for (k in 1:3) {
+for (k in 1:15) {
+  message(paste("Právě probíhá", k, "tý výpočet"))
   scnsn <- knn2nb(knearneigh(CORD, k=k, longlat=T), row.names = NULL, sym = T) 
   W <- nb2listw(scnsn)
   spatial.err <- errorsarlm(formula, data=df, W)
@@ -201,6 +205,7 @@ gg_novo <-
   facet_wrap(~"novostavba") + 
   my_theme
 
+A <- 
   gridExtra::grid.arrange(
   gg_AIC,
   gg_LL,
@@ -212,6 +217,9 @@ gg_novo <-
   gg_KK,
   gg_panel,
   gg_balcon, 
-  gg_novo)
+  gg_novo,
+  top=textGrob("Vývoj koeficientů pro různé relace sousednosti",gp=gpar(fontsize=15,font="serif"))
+  )
+  
 
-
+ggsave("PLOTS_PDFs/spatial_sensiv.pdf", height = 8, width = 11, A)  
