@@ -27,6 +27,7 @@ knitr::opts_chunk$set(echo = F,
 
 ```{r}
 rm(list = ls())
+set.seed(1)
 
 library(tidyverse)
 library(stargazer)
@@ -395,7 +396,7 @@ $$y = X\beta + u,$$
 $$u = \lambda Wu + \varepsilon$$
 
 ```{r}
-cns <- knearneigh(CORD, k=7, longlat=T) 
+cns <- knearneigh(CORD, k=15, longlat=T) 
 scnsn <- knn2nb(cns, row.names = NULL, sym = T) 
 W <- nb2listw(scnsn)
 
