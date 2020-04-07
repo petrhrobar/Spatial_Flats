@@ -21,3 +21,4 @@ neighbourhood characteristics.
 
 - Firstly we test for spatial dependency
 - Then applying spatial models
+- lastly we evaluate model stability for various types of spatial matrix
