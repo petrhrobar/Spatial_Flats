@@ -9,6 +9,5 @@ neighbourhood characteristics.
 
   - Firstly we test for spatial dependency
   - Then applying spatial models
-
-Data Distribution:
-![](README_files/figure-gfm/unnamed-chunk-1-1.png)<!-- -->
+  - lastly we evaluate model stability for various types of spatial
+    matrix
