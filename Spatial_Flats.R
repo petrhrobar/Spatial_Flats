@@ -1,32 +1,4 @@
-library(tidyverse)
-library(stargazer)
-library(knitr)
-library(kableExtra)
-library(quantreg)
-library(spdep)
-library(ggmap)
-library(stargazer)
-library(leaflet)
-library(grid)
-library(gridExtra)
-
-
-my_theme <- 
-  theme_light() + 
-  theme(
-    plot.title = element_text(size = 16, face = "bold", family = "serif"),
-    axis.text = element_text(size = 12, family="serif"),
-    axis.title = element_text(size = 14, family="serif"),
-    axis.title.y = element_text(face = "bold", size = 12, family="serif"),
-    axis.title.x = element_text(face = "bold", size = 12, family="serif"),
-    legend.text = element_text(size = 10, family="serif"),
-    legend.title = element_text(size = 12, family="serif"),
-    panel.border = element_rect(colour = "gray35", fill=NA, size= 1.7),
-    panel.grid.major = element_line(colour = "lightgrey"),
-    legend.position = "bottom",
-    legend.direction = "vertical",
-    strip.background = element_rect(fill = "gray91", color =  "black"),
-    strip.text = element_text(color = "black", size = 12.5, family = "serif"))
+rmarkdown::render("Flats_Presentation.Rmd")
 
 
 ########################################################### #
@@ -64,8 +36,9 @@ s2.df <- data.frame(NN= 0,
                     )
 
 
-for (k in 1:15) {
-  message(paste("Právě probíhá", k, "tý výpočet"))
+
+for (k in seq(2, 40, by = 2)) {
+  message(paste("Právě probíhá", k, "Sousedů"))
   scnsn <- knn2nb(knearneigh(CORD, k=k, longlat=T), row.names = NULL, sym = T) 
   W <- nb2listw(scnsn)
   spatial.err <- errorsarlm(formula, data=df, W)

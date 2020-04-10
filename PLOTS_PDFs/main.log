@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.20 (MiKTeX 2.9.7200 64-bit) (preloaded format=pdflatex 2019.10.26)  7 APR 2020 14:09
+This is pdfTeX, Version 3.14159265-2.6-1.40.20 (MiKTeX 2.9.7200 64-bit) (preloaded format=pdflatex 2019.10.26)  7 APR 2020 20:43
 entering extended mode
 **./main.tex
 (main.tex
@@ -923,63 +923,11 @@ If that doesn't work, type  X <return>  to quit.
 [1
 
 {C:/Users/petr7/AppData/Local/MiKTeX/2.9/pdftex/config/pdftex.map}]
-LaTeX Font Info:    Trying to load font information for TS1+lmr on input line 9
-4.
 
-("C:\Program Files\MiKTeX 2.9\tex/latex/lm\ts1lmr.fd"
-File: ts1lmr.fd 2009/10/30 v1.6 Font defs for Latin Modern
-)
-LaTeX Font Info:    Trying to load font information for T1+lmtt on input line 1
-03.
+Package hyperref Warning: old toc file detected, not used; run LaTeX again.
 
-("C:\Program Files\MiKTeX 2.9\tex/latex/lm\t1lmtt.fd"
-File: t1lmtt.fd 2009/10/30 v1.6 Font defs for Latin Modern
-)
-LaTeX Font Info:    Trying to load font information for OT1+lmr on input line 1
-03.
-
-("C:\Program Files\MiKTeX 2.9\tex/latex/lm\ot1lmr.fd"
-File: ot1lmr.fd 2009/10/30 v1.6 Font defs for Latin Modern
-)
-LaTeX Font Info:    Trying to load font information for OML+lmm on input line 1
-03.
-
-("C:\Program Files\MiKTeX 2.9\tex/latex/lm\omllmm.fd"
-File: omllmm.fd 2009/10/30 v1.6 Font defs for Latin Modern
-)
-LaTeX Font Info:    Trying to load font information for OMS+lmsy on input line 
-103.
-
-("C:\Program Files\MiKTeX 2.9\tex/latex/lm\omslmsy.fd"
-File: omslmsy.fd 2009/10/30 v1.6 Font defs for Latin Modern
-)
-LaTeX Font Info:    Trying to load font information for OMX+lmex on input line 
-103.
-
-("C:\Program Files\MiKTeX 2.9\tex/latex/lm\omxlmex.fd"
-File: omxlmex.fd 2009/10/30 v1.6 Font defs for Latin Modern
-)
-LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <10.95> on input line 103.
-LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <8> on input line 103.
-LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <6> on input line 103.
-LaTeX Font Info:    Trying to load font information for U+msa on input line 103
-.
-
-("C:\Program Files\MiKTeX 2.9\tex/latex/amsfonts\umsa.fd"
-File: umsa.fd 2013/01/14 v3.01 AMS symbols A
-)
-LaTeX Font Info:    Trying to load font information for U+msb on input line 103
-.
-
-("C:\Program Files\MiKTeX 2.9\tex/latex/amsfonts\umsb.fd"
-File: umsb.fd 2013/01/14 v3.01 AMS symbols B
-)
-
-LaTeX Warning: Reference `Popisné statistiky proměnných' on page 1 undefined
- on input line 111.
+\tf@toc=\write4
+\openout4 = `main.toc'.
 
 
 Package Fancyhdr Warning: \headheight is too small (12.0pt): 
@@ -991,32 +939,91 @@ pdfTeX warning (ext4): destination with the same identifier (name{page.1}) has
 been already used, duplicate ignored
 <to be read again> 
                    \relax 
-l.133 \end{table}
-                  [1
+l.82 \clearpage
+                [1
 
+]
+LaTeX Font Info:    Trying to load font information for TS1+lmr on input line 9
+5.
+ ("C:\Program Files\MiKTeX 2.9\tex/latex/lm\ts1lmr.fd"
+File: ts1lmr.fd 2009/10/30 v1.6 Font defs for Latin Modern
+)
+LaTeX Font Info:    Trying to load font information for T1+lmtt on input line 1
+04.
+
+("C:\Program Files\MiKTeX 2.9\tex/latex/lm\t1lmtt.fd"
+File: t1lmtt.fd 2009/10/30 v1.6 Font defs for Latin Modern
+)
+LaTeX Font Info:    Trying to load font information for OT1+lmr on input line 1
+04.
+
+("C:\Program Files\MiKTeX 2.9\tex/latex/lm\ot1lmr.fd"
+File: ot1lmr.fd 2009/10/30 v1.6 Font defs for Latin Modern
+)
+LaTeX Font Info:    Trying to load font information for OML+lmm on input line 1
+04.
+
+("C:\Program Files\MiKTeX 2.9\tex/latex/lm\omllmm.fd"
+File: omllmm.fd 2009/10/30 v1.6 Font defs for Latin Modern
+)
+LaTeX Font Info:    Trying to load font information for OMS+lmsy on input line 
+104.
+
+("C:\Program Files\MiKTeX 2.9\tex/latex/lm\omslmsy.fd"
+File: omslmsy.fd 2009/10/30 v1.6 Font defs for Latin Modern
+)
+LaTeX Font Info:    Trying to load font information for OMX+lmex on input line 
+104.
+
+("C:\Program Files\MiKTeX 2.9\tex/latex/lm\omxlmex.fd"
+File: omxlmex.fd 2009/10/30 v1.6 Font defs for Latin Modern
+)
+LaTeX Font Info:    External font `lmex10' loaded for size
+(Font)              <10.95> on input line 104.
+LaTeX Font Info:    External font `lmex10' loaded for size
+(Font)              <8> on input line 104.
+LaTeX Font Info:    External font `lmex10' loaded for size
+(Font)              <6> on input line 104.
+LaTeX Font Info:    Trying to load font information for U+msa on input line 104
+.
+
+("C:\Program Files\MiKTeX 2.9\tex/latex/amsfonts\umsa.fd"
+File: umsa.fd 2013/01/14 v3.01 AMS symbols A
+)
+LaTeX Font Info:    Trying to load font information for U+msb on input line 104
+.
+
+("C:\Program Files\MiKTeX 2.9\tex/latex/amsfonts\umsb.fd"
+File: umsb.fd 2013/01/14 v3.01 AMS symbols B
+)
+
+LaTeX Warning: Reference `Popisné statistiky proměnných' on page 2 undefined
+ on input line 112.
+
+[2
 
 ]
 LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <9> on input line 135.
+(Font)              <9> on input line 136.
 LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <5> on input line 135.
+(Font)              <5> on input line 136.
 
 
-LaTeX Warning: Reference `Distribuce Proměných' on page 2 undefined on input 
-line 137.
+LaTeX Warning: Reference `Distribuce Proměných' on page 3 undefined on input 
+line 138.
 
 
-LaTeX Warning: Reference `Přílohy' on page 2 undefined on input line 137.
+LaTeX Warning: Reference `Přílohy' on page 3 undefined on input line 138.
 
 
-LaTeX Warning: Reference `Distribuce pozorování v prostoru' on page 2 undefin
-ed on input line 137.
+LaTeX Warning: Reference `Distribuce pozorování v prostoru' on page 3 undefin
+ed on input line 138.
 
 
-LaTeX Warning: Reference `Přílohy' on page 2 undefined on input line 137.
+LaTeX Warning: Reference `Přílohy' on page 3 undefined on input line 138.
 
 
-Overfull \hbox (79.63666pt too wide) detected at line 145
+Overfull \hbox (79.63666pt too wide) detected at line 146
 []\OML/lmm/m/it/10.95 log\OT1/lmr/m/n/10.95 (\OML/lmm/m/it/10.95 price\OT1/lmr/
 m/n/10.95 ) = \OML/lmm/m/it/10.95 [] \OT1/lmr/m/n/10.95 + \OML/lmm/m/it/10.95 
 []rooms \OT1/lmr/m/n/10.95 + \OML/lmm/m/it/10.95 []log\OT1/lmr/m/n/10.95 (\OM
@@ -1028,79 +1035,79 @@ r/m/n/10.95 + \OML/lmm/m/it/10.95 []novostavba \OT1/lmr/m/n/10.95 + \OML/lmm/m
  []
 
 
-LaTeX Warning: Reference `Distribuce Proměných' on page 2 undefined on input 
-line 147.
+LaTeX Warning: Reference `Distribuce Proměných' on page 3 undefined on input 
+line 148.
 
 
-LaTeX Warning: Reference `rovnice1' on page 2 undefined on input line 149.
+LaTeX Warning: Reference `rovnice1' on page 3 undefined on input line 150.
 
-[2]
+[3]
 
 LaTeX Warning: Citation `wooldridge2016introductory-citovat_kapitolu' undefined
- on input line 160.
+ on input line 161.
 
 
-LaTeX Warning: Citation `james2013introduction' undefined on input line 162.
+LaTeX Warning: Citation `james2013introduction' undefined on input line 163.
 
 
-LaTeX Warning: Reference `Distribuce Pozorování a Clusterování' on page 3 u
-ndefined on input line 162.
+LaTeX Warning: Reference `Distribuce Pozorování a Clusterování' on page 4 u
+ndefined on input line 163.
 
 
-Overfull \hbox (4.52858pt too wide) in paragraph at lines 165--166
+Overfull \hbox (4.52858pt too wide) in paragraph at lines 166--167
 \T1/lmr/m/n/10.95 Metoda kvan-ti-lov� re-grese re-grese, je me-toda ve kter� se
  mi-ni-ma-li-zuje n�-sle-du-j�c� tvar: 
  []
 
 
-LaTeX Warning: Citation `greene2003econometric' undefined on input line 173.
-
-[3]
-
-LaTeX Warning: Reference `spatial lag' on page 4 undefined on input line 190.
-
-
-LaTeX Warning: Citation `lesage2008introduction' undefined on input line 190.
-
-
-LaTeX Warning: Citation `formanek2019spatial' undefined on input line 190.
+LaTeX Warning: Citation `greene2003econometric' undefined on input line 174.
 
 [4]
 
-LaTeX Warning: Reference `spatial error' on page 5 undefined on input line 207.
+LaTeX Warning: Reference `spatial lag' on page 5 undefined on input line 191.
 
 
+LaTeX Warning: Citation `lesage2008introduction' undefined on input line 191.
 
-LaTeX Warning: Citation `anselin2013spatial' undefined on input line 226.
+
+LaTeX Warning: Citation `formanek2019spatial' undefined on input line 191.
 
 [5]
 
-LaTeX Warning: Reference `Relace sousednosti' on page 6 undefined on input line
- 233.
+LaTeX Warning: Reference `spatial error' on page 6 undefined on input line 208.
 
-<flats_network.pdf, id=98, 578.16pt x 578.16pt>
+
+
+LaTeX Warning: Citation `anselin2013spatial' undefined on input line 227.
+
+[6]
+
+LaTeX Warning: Reference `Relace sousednosti' on page 7 undefined on input line
+ 234.
+
+<flats_network.pdf, id=104, 578.16pt x 578.16pt>
 File: flats_network.pdf Graphic file (type pdf)
 <use flats_network.pdf>
-Package pdftex.def Info: flats_network.pdf  used on input line 238.
+Package pdftex.def Info: flats_network.pdf  used on input line 239.
 (pdftex.def)             Requested size: 490.80743pt x 490.80313pt.
 
-LaTeX Warning: Reference `Moran' on page 6 undefined on input line 243.
+LaTeX Warning: Reference `Moran' on page 7 undefined on input line 244.
 
-[6
+[7
 
- <./flats_network.pdf>] [7]
+ <./flats_network.pdf>] [8]
 
-LaTeX Warning: Reference `modely tabulka' on page 8 undefined on input line 262
+LaTeX Warning: Reference `modely tabulka' on page 9 undefined on input line 263
 .
 
 
-LaTeX Warning: Reference `modely tabulka' on page 8 undefined on input line 267
+LaTeX Warning: Reference `modely tabulka' on page 9 undefined on input line 268
 .
 
 ! Missing $ inserted.
 <inserted text> 
                 $
-l.317   \end{tabular}}
+l.318   \end{tabular}}
                       
 I've inserted a begin-math/end-math symbol since I think
 you left one out. Proceed, with fingers crossed.
@@ -1108,7 +1115,7 @@ you left one out. Proceed, with fingers crossed.
 ! Missing $ inserted.
 <inserted text> 
                 $
-l.317   \end{tabular}}
+l.318   \end{tabular}}
                       
 I've inserted something that you may have forgotten.
 (See the <inserted text> above.)
@@ -1119,7 +1126,7 @@ my insertion and my current dilemma will both disappear.
 ! Missing $ inserted.
 <inserted text> 
                 $
-l.317   \end{tabular}}
+l.318   \end{tabular}}
                       
 I've inserted a begin-math/end-math symbol since I think
 you left one out. Proceed, with fingers crossed.
@@ -1127,7 +1134,7 @@ you left one out. Proceed, with fingers crossed.
 ! Missing $ inserted.
 <inserted text> 
                 $
-l.317   \end{tabular}}
+l.318   \end{tabular}}
                       
 I've inserted something that you may have forgotten.
 (See the <inserted text> above.)
@@ -1138,7 +1145,7 @@ my insertion and my current dilemma will both disappear.
 ! Missing $ inserted.
 <inserted text> 
                 $
-l.317   \end{tabular}}
+l.318   \end{tabular}}
                       
 I've inserted a begin-math/end-math symbol since I think
 you left one out. Proceed, with fingers crossed.
@@ -1146,7 +1153,7 @@ you left one out. Proceed, with fingers crossed.
 ! Missing $ inserted.
 <inserted text> 
                 $
-l.317   \end{tabular}}
+l.318   \end{tabular}}
                       
 I've inserted something that you may have forgotten.
 (See the <inserted text> above.)
@@ -1160,131 +1167,131 @@ Make it at least 14.1595pt.
 We now make it that large for the rest of the document.
 This may cause the page layout to be inconsistent, however.
 
-[8
+[9
 
 ]
 
-LaTeX Warning: Reference `modely tabulka' on page 9 undefined on input line 322
-.
+LaTeX Warning: Reference `modely tabulka' on page 10 undefined on input line 32
+3.
 
 
-LaTeX Warning: Reference `Distribuce Pozorování a Clusterování' on page 9 u
-ndefined on input line 322.
+LaTeX Warning: Reference `Distribuce Pozorování a Clusterování' on page 10 
+undefined on input line 323.
 
 
-LaTeX Warning: Reference `Distribuce Pozorování a Clusterování' on page 9 u
-ndefined on input line 324.
+LaTeX Warning: Reference `Distribuce Pozorování a Clusterování' on page 10 
+undefined on input line 325.
 
 
-Overfull \hbox (0.84045pt too wide) in paragraph at lines 324--325
+Overfull \hbox (0.84045pt too wide) in paragraph at lines 325--326
 []\T1/lmr/m/n/10.95 Zaj�mav� je, �e m�-�eme iden-ti-fi-ko-vat Clus-ter ([], �lu
 t�), je-ho� pro-m�nn� ($\OML/lmm/m/it/10.95 Kmeans[]$\T1/lmr/m/n/10.95 )
  []
 
 
-LaTeX Warning: Reference `Moran' on page 9 undefined on input line 326.
-
-
-LaTeX Warning: Reference `Metriky modelů' on page 9 undefined on input line 32
-6.
-
-
-LaTeX Warning: Reference `Citlivost kvantilové regrese' on page 9 undefined on
- input line 349.
-
-[9
-
-]
-
-LaTeX Warning: Reference `Porovnání skutečných a predikovaných hodnot' on 
-page 10 undefined on input line 353.
-
-<flats_fitted.pdf, id=132, 794.97pt x 578.16pt>
-File: flats_fitted.pdf Graphic file (type pdf)
-<use flats_fitted.pdf>
-Package pdftex.def Info: flats_fitted.pdf  used on input line 357.
-(pdftex.def)             Requested size: 469.47308pt x 341.44667pt.
-
-LaTeX Warning: Reference `modely tabulka' on page 10 undefined on input line 36
-4.
+LaTeX Warning: Reference `Moran' on page 10 undefined on input line 327.
 
 
 LaTeX Warning: Reference `Metriky modelů' on page 10 undefined on input line 3
-64.
+27.
 
 
-LaTeX Warning: Reference `Porovnání skutečných a predikovaných hodnot' on 
-page 10 undefined on input line 364.
+LaTeX Warning: Reference `Citlivost kvantilové regrese' on page 10 undefined o
+n input line 350.
 
 [10
 
+]
+
+LaTeX Warning: Reference `Porovnání skutečných a predikovaných hodnot' on 
+page 11 undefined on input line 354.
+
+<flats_fitted.pdf, id=137, 794.97pt x 578.16pt>
+File: flats_fitted.pdf Graphic file (type pdf)
+<use flats_fitted.pdf>
+Package pdftex.def Info: flats_fitted.pdf  used on input line 358.
+(pdftex.def)             Requested size: 469.47308pt x 341.44667pt.
+
+LaTeX Warning: Reference `modely tabulka' on page 11 undefined on input line 36
+5.
+
+
+LaTeX Warning: Reference `Metriky modelů' on page 11 undefined on input line 3
+65.
+
+
+LaTeX Warning: Reference `Porovnání skutečných a predikovaných hodnot' on 
+page 11 undefined on input line 365.
+
+[11
+
  <./flats_fitted.pdf>]
 
-LaTeX Warning: Citation `formanek2016stability' undefined on input line 371.
+LaTeX Warning: Citation `formanek2016stability' undefined on input line 372.
 
 
-LaTeX Warning: Reference `Citlivost koeficientů v změny matice' on page 11 un
-defined on input line 375.
+LaTeX Warning: Reference `Citlivost koeficientů v změny matice' on page 12 un
+defined on input line 376.
 
-<spatial_sensiv.pdf, id=148, 794.97pt x 578.16pt>
+<spatial_sensiv.pdf, id=153, 794.97pt x 578.16pt>
 File: spatial_sensiv.pdf Graphic file (type pdf)
 <use spatial_sensiv.pdf>
-Package pdftex.def Info: spatial_sensiv.pdf  used on input line 379.
+Package pdftex.def Info: spatial_sensiv.pdf  used on input line 380.
 (pdftex.def)             Requested size: 473.73865pt x 344.5432pt.
-[11
+[12
 
  <./spatial_sensiv.pdf>]
 
-LaTeX Warning: Reference `modely tabulka' on page 12 undefined on input line 38
-6.
+LaTeX Warning: Reference `modely tabulka' on page 13 undefined on input line 38
+7.
 
 
-LaTeX Warning: Reference `Shluková analýza reziduí' on page 12 undefined on 
-input line 396.
+LaTeX Warning: Reference `Shluková analýza reziduí' on page 13 undefined on 
+input line 397.
 
-[12
+[13
 
 ]
-<flats_resid.pdf, id=172, 578.16pt x 578.16pt>
+<flats_resid.pdf, id=177, 578.16pt x 578.16pt>
 File: flats_resid.pdf Graphic file (type pdf)
 <use flats_resid.pdf>
-Package pdftex.def Info: flats_resid.pdf  used on input line 403.
+Package pdftex.def Info: flats_resid.pdf  used on input line 404.
 (pdftex.def)             Requested size: 512.14832pt x 512.17001pt.
- [13 <./flats_resid.pdf>]
+ [14 <./flats_resid.pdf>]
 
-LaTeX Warning: Reference `Shluková analýza reziduí' on page 14 undefined on 
-input line 416.
-
-
-LaTeX Warning: Reference `modely tabulka' on page 14 undefined on input line 42
-2.
+LaTeX Warning: Reference `Shluková analýza reziduí' on page 15 undefined on 
+input line 417.
 
 
-LaTeX Warning: Reference `Citlivost koeficientů v změny matice' on page 14 un
-defined on input line 422.
+LaTeX Warning: Reference `modely tabulka' on page 15 undefined on input line 42
+3.
 
-[14
+
+LaTeX Warning: Reference `Citlivost koeficientů v změny matice' on page 15 un
+defined on input line 423.
+
+[15
 
 
 ]
-<datahist.pdf, id=193, 722.7pt x 578.16pt>
+<datahist.pdf, id=198, 722.7pt x 578.16pt>
 File: datahist.pdf Graphic file (type pdf)
 <use datahist.pdf>
-Package pdftex.def Info: datahist.pdf  used on input line 437.
+Package pdftex.def Info: datahist.pdf  used on input line 438.
 (pdftex.def)             Requested size: 469.47308pt x 375.579pt.
- [15
+ [16
 
  <./datahist.pdf>]
-<flats.pdf, id=206, 578.16pt x 578.16pt>
+<flats.pdf, id=211, 578.16pt x 578.16pt>
 File: flats.pdf Graphic file (type pdf)
 <use flats.pdf>
-Package pdftex.def Info: flats.pdf  used on input line 446.
+Package pdftex.def Info: flats.pdf  used on input line 447.
 (pdftex.def)             Requested size: 469.47308pt x 469.47154pt.
- [16
+ [17
 
  <./flats.pdf>]
 
-LaTeX Warning: File `flat_cluster.pdf' not found on input line 455.
+LaTeX Warning: File `flat_cluster.pdf' not found on input line 456.
 
 
 ! Package pdftex.def Error: File `"""flat_cluster".pdf' not found: using draft 
@@ -1294,28 +1301,28 @@ See the pdftex.def package documentation for explanation.
 Type  H <return>  for immediate help.
  ...                                              
                                                   
-l.455 ...s[width=1.1\textwidth]{flat_cluster.pdf}}
+l.456 ...s[width=1.1\textwidth]{flat_cluster.pdf}}
                                                   
 Try typing  <return>  to proceed.
 If that doesn't work, type  X <return>  to quit.
 
-[17
+[18
 
 ]
-<kvant.pdf, id=227, 794.97pt x 578.16pt>
+<kvant.pdf, id=233, 794.97pt x 578.16pt>
 File: kvant.pdf Graphic file (type pdf)
 <use kvant.pdf>
-Package pdftex.def Info: kvant.pdf  used on input line 464.
+Package pdftex.def Info: kvant.pdf  used on input line 465.
 (pdftex.def)             Requested size: 469.47308pt x 341.44667pt.
- [18
+ [19
 
  <./kvant.pdf>]
 No file main.bbl.
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 477.
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 477.
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 478.
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 478.
 (main.aux)
-Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 477.
-Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 477.
+Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 478.
+Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 478.
 
 
 Package rerunfilecheck Warning: File `main.out' has changed.
@@ -1331,13 +1338,13 @@ LaTeX Warning: There were undefined references.
 
 LaTeX Warning: Label(s) may have changed. Rerun to get cross-references right.
 
-Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 477.
+Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 478.
  ) 
 Here is how much of TeX's memory you used:
- 16217 strings out of 492452
- 228364 string characters out of 3129807
+ 16222 strings out of 492452
+ 228399 string characters out of 3129807
  348392 words of memory out of 3000000
- 20267 multiletter control sequences out of 15000+200000
+ 20269 multiletter control sequences out of 15000+200000
  78731 words of font info for 60 fonts, out of 3000000 for 9000
  1141 hyphenation exceptions out of 8191
  42i,13n,45p,929b,385s stack positions out of 5000i,500n,10000p,200000b,50000s
@@ -1385,9 +1392,9 @@ fonts/type1/public/lm/lmri9.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/public
 :/Program Files/MiKTeX 2.9/fonts/type1/public/lm/lmsy6.pfb><C:/Program Files/Mi
 KTeX 2.9/fonts/type1/public/lm/lmsy8.pfb><C:/Program Files/MiKTeX 2.9/fonts/typ
 e1/public/lm/lmtt10.pfb>
-Output written on main.pdf (19 pages, 6130897 bytes).
+Output written on main.pdf (20 pages, 6131765 bytes).
 PDF statistics:
- 329 PDF objects out of 1000 (max. 8388607)
- 61 named destinations out of 1000 (max. 500000)
+ 334 PDF objects out of 1000 (max. 8388607)
+ 63 named destinations out of 1000 (max. 500000)
  36 words of extra memory for PDF output out of 10000 (max. 10000000)
 
