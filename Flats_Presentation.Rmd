@@ -2,11 +2,12 @@
 title: "Prostorové modely na Pražském trhu nemovitostí - SEM PISI SI"
 author: Petr Hrobař
 output:
-  html_document:
+  html_document: 
     fig_caption: yes
     fig_height: 8
     fig_width: 10
     highlight: pygments
+    keep_md: yes
     message: no
     number_sections: yes
     toc: yes
@@ -225,7 +226,7 @@ $$\textit{log(cena)} = \beta_{0} +  \beta_{1}pokoje  + \beta_{2}log(metry) + \be
 Model budeme odhadovat několika metodymi: $\textit{OLS, Kvantilová regrese}$ a prostorové modely: $\textit{spatial lag, spatial error model}$.
  
 
-```{r, results='asis'}
+```{r}
 formula <- as.formula(log(price) ~ Rooms + log(Meters)  + Mezone + KK + panel + balcony_or_terrase + novostavba)
 
 
@@ -240,17 +241,6 @@ df$KMEAN = KME$cluster
 model_kmeans <- lm(log(price) ~ Rooms + log(Meters)  + Mezone + KK + panel + balcony_or_terrase + novostavba + factor(KMEAN), df)
 
 model_quant_kmean <- rq(log(price) ~ Rooms + log(Meters)  + Mezone + KK + panel + balcony_or_terrase + novostavba + factor(KMEAN), data = df)
-
-stargazer(model, model_kmeans, model_quant, model_quant_kmean,
-          type="html", 
-          column.labels=c("OLS",
-                          "OLS - kmeans",
-                          "Quant reg.",
-                          "Quant reg. - Kmeans"),
-          omit.stat = c("rsq", "f")
-          )
-
-
 ```
 
 
@@ -395,25 +385,65 @@ Druhý $\textit{Spatial Error model}$ má předpis:
 $$y = X\beta + u,$$
 $$u = \lambda Wu + \varepsilon$$
 
-```{r}
+Tabulka odhadů parametrů všech modelů:
+
+
+```{r, results='asis'}
 cns <- knearneigh(CORD, k=15, longlat=T) 
 scnsn <- knn2nb(cns, row.names = NULL, sym = T) 
 W <- nb2listw(scnsn)
 
 spatial.err <- errorsarlm(formula, data=df, W)
-summary(spatial.err)
+
 
 spatial.lag <- lagsarlm(formula, data=df, W)
-summary(spatial.lag)
 
+
+# RUčně narveme prostorové modely do stargazeru.
+
+error_c <- spatial.err %>% 
+  coef() %>% tail(8)
+
+error_se <- vcov(spatial.err) %>% diag %>% sqrt() %>% tail(8)
+
+lag_c <- spatial.lag %>% 
+  coef() %>% tail(8)
+
+lag_se <- vcov(spatial.lag) %>% diag %>% sqrt() %>% tail(8)
+
+
+stargazer(
+  model, model_kmeans, model_quant, model_quant_kmean, model, model,
+  # dep.var.caption  = "All models estimations,  \n Dependent variable:",
+  # dep.var.labels   = " MOJE",
+  out.header = F,
+  type = "html", 
+  coef = list(NULL, NULL, NULL, NULL, lag_c, error_c),
+  se = list(NULL, NULL, NULL, NULL, lag_se, error_se),
+  add.lines=list(c("\\textit{$\\rho$}", ""," ",""," ",spatial.lag$rho %>% round(3)),
+                 c(" ", "", " ", " ", " ", spatial.lag$rho.se %>% round(3),""), 
+                 c("\\textit{$\\lambda$}", "", " ", " ", " ", "", spatial.err$lambda %>% round(3)), 
+                 c(" ", "", " ", " ", " ", "", spatial.err$lambda.se %>% round(3))),
+  omit.stat = c("rsq", "f", "ser", "rsq", "adj.rsq"),
+  column.labels=c("",
+                  "kmeans",
+                  "",
+                  "Kmeans", 
+                  "Spatial lag", 
+                  "Spatial Error"),
+  no.space = F
+  #notes = "I make this look good!"
+)
 ```
 
-
+\
+\
 Dle parametrů prostorové autokorelace u obou modelů výše $\lambda, \rho$ je patrné, že uvažované modely zachycují DGP lépe, než modely bez prostorové závislosti, náhlédněme na metriky všech odhadnutých modelů.
 
 Využijeme následující metriky: $\textit{AIC, log-likel}$ a $R_{pse}$. Poslední z uvažovaných metrik je $\textit{pseudo R}$, které je spočteno následujícím způsobem:
-$$R_{pse.} = corr(y, \hat y)^2$$,
+$$R_{pse.} = corr(y, \hat y)^2,$$
 využití této metriky nám uvožní zachytit predikční shcopnosti každého modelu.
+\
 ```{r}
 
 data.frame(
