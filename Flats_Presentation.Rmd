@@ -191,6 +191,7 @@ Jelikož jsou obě proměnné ale nevhodně spojité využijeme Clusterovací al
 
 
 ```{r}
+set.seed(1)
 KME <- kmeans(CORD, 5)
 df$KMEAN = KME$cluster
 
@@ -429,7 +430,8 @@ stargazer(
                   "Kmeans", 
                   "Spatial lag", 
                   "Spatial Error"),
-  no.space = F
+  no.space = F, 
+  column.sep.width = "40pt"
   #notes = "I make this look good!"
 )
 ```
@@ -478,9 +480,10 @@ Vydíme, že všechny hodnoty užitých metrik jsou nejlepší pro $\textit{Spat
 
 #### Skutečné a predikované hodnoty
 ```{r}
+
 OLS <- data.frame(
-  fitted = model$fitted.values,
-  residuals = model$residuals
+  fitted = model$fitted,
+  residuals = model$re
 ) %>% mutate(
   actual = fitted + residuals, 
   model = "OLS"
@@ -554,15 +557,18 @@ Nejdřívě spočítame procentuální chyby predikce pro každé pozorování a
 
 Při pohledu na graf níže vidíme, že nemovistosti vyskytující se v historickém centru Prahy (Staroměstské náměstí a přilehlé okolí)
 
-Ceny nemovistostí jsou zde více jak dvojnásobné (více jak 100% rozdíl predikce) čistě z důvodů výskytů nemovistostí v historické části. Abychom tuto nevyrovnanost v reziduích odstranili, bylo by nutné každé nemovisotsti v tomto centru přidat novu kontrolní proměnnou $\textit{Historické centru}$, která by nabývala hodnoty 1, pro nemovitosti v $\textit{Honosném Clusteru}$. Užití modelů bez prostorové závislosti nám umožnuje takovéto clustery identifikovat.
+Ceny nemovistostí jsou zde více jak dvojnásobné (více jak 100% rozdíl predikce) čistě z důvodů výskytů nemovistostí v historické části. Abychom tuto nevyrovnanost v reziduích odstranili, bylo by nutné každé nemovisotsti v tomto centru přidat novu kontrolní proměnnou $\textit{Historické centru}$, která by nabývala hodnoty 1, pro nemovitosti v $\textit{Honosném Clusteru}$. Užití modelů bez prostorové závislosti nám umožnuje takovéto clustery identifikovat. 
+
+Jelikož provádíme logaritimickou transformaci jsou fitované hodnoty tranformovány dle vzorce: 
+$$\hat y = exp(\hat \sigma^{2}/2)exp( \hat{log} y)$$
 ```{r}
 
-
+fitted_corrected <- exp((sigma(model)^2)/2)*exp(model$fitted.values)
 
 d = 
   data.frame(model$fitted.values, df$price) %>% 
   mutate(df.price = df.price,
-         model.fitted.values = exp(model.fitted.values),
+         model.fitted.values = fitted_corrected,
          pred_res = ((abs(model.fitted.values - df.price))/model.fitted.values)) %>% 
   select(pred_res)
 
@@ -601,11 +607,11 @@ ggmap(ggMapPrague) +
 Na Druhé straně pokud modelujume prostorovu závislost a dovolíme sousedním hodnotám $\textit{„Vzájemné ovlivňování“}$ vydíme, že výrazný historický shluk v historickém centru Prahy vymizí.
 ```{r}
 
-
+fitted_corrected_error <- exp((sigma(spatial.err)^2)/2)*exp(spatial.err$fitted.values)
 d = 
-  data.frame(spatial.err$fitted.values, df$price) %>% 
+  data.frame(fitted_corrected_error, df$price) %>% 
   mutate(df.price = df.price,
-         model.fitted.values = exp(spatial.err.fitted.values),
+         model.fitted.values = fitted_corrected_error,
          pred_res = ((abs(model.fitted.values - df.price))/model.fitted.values)) %>% 
   select(pred_res)
 
@@ -781,7 +787,7 @@ bptest.sarlm(spatial.err) %>%
 
 bptest.sarlm(spatial.lag) %>% 
   broom::tidy() %>% 
-  stargazer(type = "latex", summary = F, title = "Spatial Error", flip = F, digits = 3), 
+  stargazer(type = "latex", summary = F, title = "Spatial lag", flip = F, digits = 3), 
 file = "PLOTS_PDFs/all_metrics.txt"
 )
 
