@@ -8,6 +8,7 @@ library(tidyverse)
 library(spdep)
 df <- read.csv("Dataset_Filtered_cleaned.csv", sep = ",")
 
+summary(spatial.err)
 
 CORD = cbind(df$gps.lon, df$gps.lat)
 CORD[ ,1] <- CORD[ ,1] + runif(min = -10E-4, max = 10E-4, dim(CORD)[1])

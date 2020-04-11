@@ -395,9 +395,7 @@ W <- nb2listw(scnsn)
 
 spatial.err <- errorsarlm(formula, data=df, W)
 
-
 spatial.lag <- lagsarlm(formula, data=df, W)
-
 
 # RUčně narveme prostorové modely do stargazeru.
 
@@ -656,7 +654,7 @@ $$H_{2}: \textit{Historické centrum prahy představuje hlavní „honosný“ c
 Pokud nahlédneme na rezidua v prostoru z OLS modelu vidíme a výše popisujeme výrazný $\textit{prostorový shluk}$ viz. výše., tedy I tuto stanovenou hypotézu v závěru potvrzujeme
 
 $$H_{3}: \textit{Novostavba výrazně zvýší cenu}$$
-V vyhodnocení této hypotézy a statistické inference využijeme $\textit{Spatial Error modelu}$, kter7 se jeví jako nejsilnější. 
+V vyhodnocení této hypotézy a statistické inference využijeme $\textit{Spatial Error modelu}$, který se jeví jako nejsilnější. 
 
 
 proměnná $\textit{Novostavba}$ vychazí statisticky signifikantní (i na 1% hladinně) a nabývá hodnoty `r spatial.err$coefficients %>% tail(1)`, tedy předpokládáme, že pokud se jedná o novostavbu bude cenna vyšší zhruba o `r 100*spatial.err$coefficients %>% tail(1) %>% round(3)` %.
