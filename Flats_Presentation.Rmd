@@ -389,7 +389,7 @@ Tabulka odhadů parametrů všech modelů:
 
 
 ```{r, results='asis'}
-cns <- knearneigh(CORD, k=15, longlat=T) 
+cns <- knearneigh(CORD, k = 54, longlat=T) 
 scnsn <- knn2nb(cns, row.names = NULL, sym = T) 
 W <- nb2listw(scnsn)
 

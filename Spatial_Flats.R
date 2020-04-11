@@ -1,15 +1,21 @@
-rmarkdown::render("Flats_Presentation.Rmd")
+#rmarkdown::render("Flats_Presentation.Rmd")
 
 
 ########################################################### #
 #########             Spatial Stability             #########
 ########################################################### #
+library(tidyverse)
+library(spdep)
 df <- read.csv("Dataset_Filtered_cleaned.csv", sep = ",")
 
 
 CORD = cbind(df$gps.lon, df$gps.lat)
 CORD[ ,1] <- CORD[ ,1] + runif(min = -10E-4, max = 10E-4, dim(CORD)[1])
 CORD[ ,2] <- CORD[ ,2] + runif(min = -10E-4, max = 10E-4, dim(CORD)[1])
+
+
+formula <- as.formula(log(price) ~ Rooms + log(Meters)  + Mezone + KK + panel + balcony_or_terrase + novostavba)
+
 
 
 s2.df <- data.frame(NN= 0, 
@@ -37,7 +43,7 @@ s2.df <- data.frame(NN= 0,
 
 
 
-for (k in seq(2, 40, by = 2)) {
+for (k in seq(2, 100, by = 2)) {
   message(paste("Právě probíhá", k, "Sousedů"))
   scnsn <- knn2nb(knearneigh(CORD, k=k, longlat=T), row.names = NULL, sym = T) 
   W <- nb2listw(scnsn)
@@ -72,19 +78,28 @@ s2.df <- rbind(
 
 }
 
+best <- 
+  s2.df %>% 
+  filter(AIC == min(AIC)) %>% 
+  select(NN) %>% 
+  as.numeric()
+
+
 gg_AIC <- 
   s2.df[-1, ] %>% 
   ggplot(aes(NN, AIC)) + 
     geom_line(color = "royalblue", size = 0.85) + 
     facet_wrap(~"AIC") + 
-    my_theme
+    my_theme + 
+  geom_vline(aes(xintercept = best), color = "black", lty = 2, size = 1)
 
 gg_LL <- 
   s2.df[-1, ] %>% 
   ggplot(aes(NN, LL)) + 
   geom_line(color = "royalblue", size = 0.85) + 
   facet_wrap(~"Log-likelihood") + 
-  my_theme
+  my_theme + 
+  geom_vline(aes(xintercept = best), color = "black", lty = 2, size = 1)
 
 
 
@@ -96,7 +111,8 @@ gg_lambda <-
   geom_line(aes(y =Lambda - 1.96*Lambda_SE), color = "red", linetype = 2) + 
   geom_line(aes(y =Lambda + 1.96*Lambda_SE), color = "red", linetype = 2) + 
   facet_wrap(~"Lambda") + 
-  my_theme
+  my_theme + 
+  geom_vline(aes(xintercept = best), color = "black", lty = 2, size = 1)
 
 gg_Intercept <- 
   s2.df[-1, ] %>% 
@@ -106,7 +122,8 @@ gg_Intercept <-
   geom_line(aes(y =Intercept - 1.96*Intercept_SE), color = "red", linetype = 2) + 
   geom_line(aes(y =Intercept + 1.96*Intercept_SE), color = "red", linetype = 2) + 
   facet_wrap(~"Intercept") + 
-  my_theme
+  my_theme + 
+  geom_vline(aes(xintercept = best), color = "black", lty = 2, size = 1)
     
 gg_Rooms <- 
   s2.df[-1, ] %>% 
@@ -116,7 +133,8 @@ gg_Rooms <-
   geom_line(aes(y =Rooms + 1.96* Rooms_SE), color = "red", linetype = 2) + 
   geom_line(aes(y =Rooms - 1.96* Rooms_SE), color = "red", linetype = 2) + 
   facet_wrap(~"Rooms") + 
-  my_theme
+  my_theme + 
+  geom_vline(aes(xintercept = best), color = "black", lty = 2, size = 1)
 
 gg_log_meters <- 
   s2.df[-1, ] %>% 
@@ -126,7 +144,8 @@ gg_log_meters <-
   geom_line(aes(y =log_Meters + 1.96 * log_Meters_SE), color = "red", linetype = 2) + 
   geom_line(aes(y =log_Meters - 1.96 * log_Meters_SE), color = "red", linetype = 2) + 
   facet_wrap(~"log_Meters") + 
-  my_theme
+  my_theme + 
+  geom_vline(aes(xintercept = best), color = "black", lty = 2, size = 1)
 
 gg_Mezone <- 
   s2.df[-1, ] %>% 
@@ -136,7 +155,8 @@ gg_Mezone <-
   geom_line(aes(y =Mezone + 1.96 * Mezone_SE), color = "red", linetype = 2) + 
   geom_line(aes(y =Mezone - 1.96 * Mezone_SE), color = "red", linetype = 2) + 
   facet_wrap(~"Mezone") + 
-  my_theme
+  my_theme + 
+  geom_vline(aes(xintercept = best), color = "black", lty = 2, size = 1)
 
 gg_KK <- 
   s2.df[-1, ] %>% 
@@ -146,7 +166,8 @@ gg_KK <-
   geom_line(aes(y =KK + 1.96 * KK_SE), color = "red", linetype= 2) + 
   geom_line(aes(y =KK - 1.96 * KK_SE), color = "red", linetype= 2) + 
   facet_wrap(~"KK") + 
-  my_theme
+  my_theme + 
+  geom_vline(aes(xintercept = best), color = "black", lty = 2, size = 1)
 
 gg_panel <- 
   s2.df[-1, ] %>% 
@@ -156,7 +177,8 @@ gg_panel <-
   geom_line(aes(y =panel + 1.96 * panel_SE), color = "red", linetype = 2) + 
   geom_line(aes(y =panel - 1.96 * panel_SE), color = "red", linetype = 2) + 
   facet_wrap(~"panel") + 
-  my_theme
+  my_theme + 
+  geom_vline(aes(xintercept = best), color = "black", lty = 2, size = 1)
 
 
 gg_balcon <- 
@@ -167,7 +189,8 @@ gg_balcon <-
   geom_line(aes(y =balcony_or_terrase + 1.96 * balcony_or_terrase_SE), color = "red", linetype = 2) + 
   geom_line(aes(y =balcony_or_terrase - 1.96 * balcony_or_terrase_SE), color = "red", linetype = 2) + 
   facet_wrap(~"balcony_or_terrase") + 
-  my_theme
+  my_theme + 
+  geom_vline(aes(xintercept = best), color = "black", lty = 2, size = 1)
 
 gg_novo <- 
   s2.df[-1, ] %>% 
@@ -177,7 +200,8 @@ gg_novo <-
   geom_line(aes(y =novostavba + 1.96 * novostavba_SE), color = "red", linetype = 2) + 
   geom_line(aes(y =novostavba - 1.96 * novostavba_SE), color = "red", linetype = 2) + 
   facet_wrap(~"novostavba") + 
-  my_theme
+  my_theme + 
+  geom_vline(aes(xintercept = best), color = "black", lty = 2, size = 1)
 
 A <- 
   gridExtra::grid.arrange(
@@ -191,9 +215,10 @@ A <-
   gg_KK,
   gg_panel,
   gg_balcon, 
-  gg_novo,
-  top=textGrob("Vývoj koeficientů pro různé relace sousednosti",gp=gpar(fontsize=15,font="serif"))
+  gg_novo
+  #top=textGrob("Vývoj koeficientů pro různé relace sousednosti",gp=gpar(fontsize=15,font="serif"))
   )
-  
 
-ggsave("PLOTS_PDFs/spatial_sensiv.pdf", height = 8, width = 11, A)  
+
+
+ggsave("PLOTS_PDFs/spatial_sensiv.pdf", height = 10, width = 14, A)  
