@@ -43,6 +43,11 @@
 %\hypersetup{pdfstartview={XYZ null null 1.00}}
 %\linespread{1.25}
 \pagestyle{fancy}
+
+\bibliographystyle{apacite}
+\newpage
+\bibliography{liter.bib}
+
 \begin{document}
 
 \begin{titlepage}
@@ -224,7 +229,7 @@ V případně nulové hypotézy o prostorové nezávislosti nabývá statistika:
 E(I_{0}) = \frac{-1}{n-1,}
 \end{equation}
 
-V simulačních experimentech se \textit{Moranův test} prokazatelně odlišoval s ostatními testy v kontextu přesnosti  \cite{anselin2013spatial}. Relace sousednosti můžeme také nadefinovat prvotně na základě úvahy. 
+V simulačních experimentech se \textit{Moranův test} prokazatelně odlišoval s ostatními testy v kontextu přesnosti  \cite{@anselin2013spatial}. Relace sousednosti můžeme také nadefinovat prvotně na základě úvahy. 
 
 \clearpage
 Jelikož modelujeme ceny nemovitostí a předpokládáme, že ceny se vzájemně ovlivňují lokálně, uvažujeme, že sousední nemovitosti o stejných charakteristikách budou mít podobnou cena, která bude také zahrnovat faktor lokality. 
@@ -472,7 +477,6 @@ Naše Studie představuje aplikaci prostorových modelů na trhu pražských nem
 %
 % PRO VLOZENI CITACI A REFERENCI
 \bibliographystyle{apacite}
-\newpage
-\bibliography{liter}
+\bibliography{liter.bib}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \end{document}
