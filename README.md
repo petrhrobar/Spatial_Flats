@@ -11,3 +11,6 @@ neighbourhood characteristics.
   - Then applying spatial models
   - lastly we evaluate model stability for various types of spatial
     matrix
+
+Using Spatial Model we are able to evaluate prices with much better
+percision.
