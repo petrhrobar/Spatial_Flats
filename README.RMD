@@ -1,5 +1,6 @@
 ---
-title: "Prostorové modely na Pražském trhu nemovitostí"
+title: "Spatial Models: Case of Prague"
+subtitle: "Prostorové modely na Pražském trhu nemovitostí"
 author: Petr Hrobař
 output: github_document
 ---

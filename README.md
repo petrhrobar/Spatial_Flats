@@ -1,4 +1,4 @@
-Prostorové modely na Pražském trhu nemovitostí
+Spatial Models: Case of Prague
 ================
 Petr Hrobař
 
