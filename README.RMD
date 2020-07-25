@@ -29,7 +29,7 @@ Using Spatial Model we are able to evaluate prices with much better percision.
 
 # Paper:
 
-See the conference article [here].
+See the conference article [here], or alternatively, read [this markdown] for simple overview.
 
 Following studies by:
 

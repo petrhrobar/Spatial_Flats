@@ -410,6 +410,10 @@ lag_c <- spatial.lag %>%
 
 lag_se <- vcov(spatial.lag) %>% diag %>% sqrt() %>% tail(8)
 
+# save(model, model_kmeans, model_quant,model_quant_kmean, spatial.err, spatial.lag, file = "Markdown_overview/Model.RData")
+
+
+
 
 stargazer(
   model, model_kmeans, model_quant, model_quant_kmean, model, model,

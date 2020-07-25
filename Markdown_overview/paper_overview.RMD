@@ -1,0 +1,100 @@
+---
+title: "Spatial Analysis of the Flat Market in Prague"
+subtitle: "Prostorové modely na Pražském trhu nemovitostí"
+author: Petr Hrobař
+output:
+  github_document:
+    pandoc_args: --webtex
+  highlight: pygments
+bibliography: Citace.bib
+always_allow_html: true
+editor_options: 
+  chunk_output_type: console
+---
+  
+```{r set knitr options, echo = F}
+# Defaultní nastavení
+# options(warn = -1)
+knitr::opts_chunk$set(echo = FALSE,
+                      message = FALSE,
+                      warning = FALSE,
+                      fig.width=12, fig.height=10)
+```
+
+# Abstract
+
+Our study aims to examine the effect of spatial dependency in the Prague flat
+market. Following the Tobler’s first law of geography: near things are more related
+than distant things, we allow the flat’s price to be not only the function of its own
+characteristics but also function of its neighbourhood unit characteristics. We also
+evaluate different spatial dependence matrices for analysis of estimated results. The
+findings are as follows. First, based on the positive parameter of spatial autocorrelation,
+we confirm spatial dependency in our dataset, i.e. prices of flats tend to form spatial
+clusters. Second, once controlling for spatial dependency, we are able to evaluate
+flat’s prices more accurately. Third, based on the residual distribution across space,
+we identify “grandiose“ clusters in which the price of estate can be multiple times
+higher than outside the cluster simply due to the location factor.
+
+# Models used
+
+## Linear Regression
+First model used in our study is simple linear regression given as:
+
+$$ 
+    y = X\beta + \varepsilon,
+$$
+
+This model does not take spatial dependency into account. In order to partially allow for spatial dependency, we propose simple feature based on statistical learning clustering algorithms. Since we are working with spatial data, we have coordinates available although we do not recommend including coordinates into linear model directly. 
+
+
+## Spatial Lag Model
+
+Spatial lag model can be obtained from when $\theta$ and $\lambda$ are both equal to 0. Under this assumption derived model allows for accounting for spatial dependency in dependent variable of neighbourhood units. Therefore, model can be written as
+
+
+$$  y = \rho W y + X\beta + \varepsilon $$
+
+
+## Spatial Error model
+
+Second spatial model used in our study is spatial error model. Using this model specification we can account for spatial interactions among the error terms. Formal model form can be described as:
+
+
+$$y = X \beta + u $$
+$$u = \lambda W u + \varepsilon.$$
+
+
+Selection for model can imply that some (spatially distributed) independent variable was not included in the model. Once again, parameters $\beta$, $\lambda$ are estimated by the ML, see e.g. @lesage2009introduction. Unlike the spatial lag model, coefficients from spatial error model can be directly interpreted as marginal effects. 
+
+
+# Dataset
+
+Flats estates are retrived from Czech estates site Sreality.cz which contains various estates that are available to rent
+or buy. We suppose that Prague flats listed here are credible representation of the real flats market of the city, i.e.
+the listed estates follow the same DGP as the estates not listed and thus not included in the dataset
+
+Example of dataset can be inspected down below:
+
+```{r}
+library(tidyverse)
+library(knitr)
+library(kableExtra)
+
+df <- readr::read_csv("../Data and Scrapping/Dataset_Filtered_cleaned.csv")
+
+df %>% 
+  dplyr::select(price, Meters, Rooms, Mezone, KK, panel, balcony_or_terrase, novostavba) %>%
+  head() %>% 
+  kable() %>%
+  kable_styling(bootstrap_options = "striped", full_width = F)
+```
+
+
+# Empirical results
+
+All estimated models can be inspected down below:
+
+
+
+
+# References
