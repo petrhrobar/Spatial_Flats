@@ -19,8 +19,9 @@ percision.
 
 # Paper:
 
-See the conference article
-[here](https://github.com/petrhrobar/Spatial_Flats/blob/master/Spatial_Analysis_of_the_Flat_Market_in_Prague__MME.pdf).
+See the conference article \[here\], or alternatively, read [this
+markdown](https://github.com/petrhrobar/Spatial_Flats/blob/master/Markdown_overview/paper_overview.md)
+for simple overview.
 
 Following studies by:
 
