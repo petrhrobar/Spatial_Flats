@@ -1,4 +1,4 @@
-Spatial Models: Case of Prague
+Spatial Analysis of the Flat Market in Prague
 ================
 Petr Hrobař
 
@@ -19,16 +19,46 @@ percision.
 
 Following studies by:
 
-Lipán (2016) Formánek (2019)
+Lipán (2016), Formánek (2019), Dubin (1992), Hastie, Tibshirani, and
+Friedman (2009), LeSage and Pace (2009), Anselin (2013)
 
 # References
 
 <div id="refs" class="references">
 
+<div id="ref-anselin2013spatial">
+
+Anselin, Luc. 2013. *Spatial Econometrics: Methods and Models*. Vol. 4.
+Springer Science & Business Media.
+
+</div>
+
+<div id="ref-dubin1992spatial">
+
+Dubin, Robin A. 1992. “Spatial Autocorrelation and Neighborhood
+Quality.” *Regional Science and Urban Economics* 22 (3): 433–52.
+
+</div>
+
 <div id="ref-formanek2019spatial">
 
 Formánek, Tomáš. 2019. “Spatial Econometric Analysis with Applications
 to Regional Macroeconomic Dynamics.”
+
+</div>
+
+<div id="ref-hastie2009elements">
+
+Hastie, Trevor, Robert Tibshirani, and Jerome Friedman. 2009. *The
+Elements of Statistical Learning: Data Mining, Inference, and
+Prediction*. Springer Science & Business Media.
+
+</div>
+
+<div id="ref-lesage2009introduction">
+
+LeSage, J, and R Pace. 2009. “Introduction to Spatial Econometrics. Boca
+Raton: Taylor and Francishttp://Dx. Doi. Org/10.1201/9781420064254.”
 
 </div>
 

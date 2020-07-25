@@ -1,5 +1,5 @@
 ---
-title: "Spatial Models: Case of Prague"
+title: "Spatial Analysis of the Flat Market in Prague"
 subtitle: "Prostorové modely na Pražském trhu nemovitostí"
 author: Petr Hrobař
 output: github_document
@@ -30,8 +30,12 @@ Using Spatial Model we are able to evaluate prices with much better percision.
 
 Following studies by:
 
-@lipan2016spatial
-@formanek2019spatial
+@lipan2016spatial,
+@formanek2019spatial,
+@dubin1992spatial,
+@hastie2009elements,
+@lesage2009introduction,
+@anselin2013spatial
 
 
 # References
