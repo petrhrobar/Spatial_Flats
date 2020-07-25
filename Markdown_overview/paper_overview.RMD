@@ -92,7 +92,17 @@ df %>%
 
 # Empirical results
 
-All estimated models can be inspected down below:
+Will be updated soon
+
+@lipan2016spatial,
+@formanek2019spatial,
+@dubin1992spatial,
+@hastie2009elements,
+@lesage2009introduction,
+@anselin2013spatial
+
+
+# References
 
 
 
