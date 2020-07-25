@@ -116,13 +116,13 @@ Nakonec bylo nezbytné odstranit všechna pozorování, která obsahovala chybě
 
 #### Základní statistiky proměnných
 ```{r}
-#setwd("C:/Users/petr7/OneDrive/ŠKOLA/PROSTOROVÉ BYTY")
+
 
 #-------------------------------------#
 ######### Datasets loading  #########
 #-------------------------------------#
 
-df <- read.csv("Dataset_Filtered_cleaned.csv", sep = ",")
+df <- read.csv("Data and Scrapping/Dataset_Filtered_cleaned.csv", sep = ",")
 
 
 df %>% 
@@ -608,6 +608,7 @@ Na Druhé straně pokud modelujume prostorovu závislost a dovolíme sousedním 
 ```{r}
 
 fitted_corrected_error <- exp((sigma(spatial.err)^2)/2)*exp(spatial.err$fitted.values)
+
 d = 
   data.frame(fitted_corrected_error, df$price) %>% 
   mutate(df.price = df.price,
