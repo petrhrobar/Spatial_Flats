@@ -3,6 +3,7 @@ title: "Spatial Models: Case of Prague"
 subtitle: "Prostorové modely na Pražském trhu nemovitostí"
 author: Petr Hrobař
 output: github_document
+bibliography: Citace.bib
 ---
   
 ```{r set knitr options, echo = FALSE}
@@ -25,3 +26,12 @@ neighbourhood characteristics.
 - lastly we evaluate model stability for various types of spatial matrix
 
 Using Spatial Model we are able to evaluate prices with much better percision.
+
+
+Following studies by:
+
+@lipan2016spatial
+@formanek2019spatial
+
+
+# References
