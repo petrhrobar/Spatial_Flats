@@ -29,7 +29,7 @@ Using Spatial Model we are able to evaluate prices with much better percision.
 
 # Paper:
 
-See the conference article [here], or alternatively, read [this markdown](https://github.com/petrhrobar/Spatial_Flats/blob/master/Markdown_overview/paper_overview.md) for simple overview.
+See the conference article [here](https://github.com/petrhrobar/Spatial_Flats/blob/master/Spatial%20Analysis%20of%20the%20Flat%20Market%20in%20Prague.pdf), or alternatively, read [this markdown](https://github.com/petrhrobar/Spatial_Flats/blob/master/Markdown_overview/paper_overview.md) for simple overview.
 
 
 
